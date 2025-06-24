@@ -1,0 +1,1448 @@
+[
+  {
+    "ville": "Paris",
+    "iris": [
+      "Banlieue Sud",
+      "Quartier Ouest",
+      "Campus universitaire",
+      "Zone portuaire",
+      "Quartier Est"
+    ]
+  },
+  {
+    "ville": "Marseille",
+    "iris": [
+      "Centre-ville",
+      "Quartier Ouest",
+      "Banlieue Sud"
+    ]
+  },
+  {
+    "ville": "Lyon",
+    "iris": [
+      "Banlieue Nord",
+      "Zone commerciale",
+      "Campus universitaire",
+      "Quartier Ouest"
+    ]
+  },
+  {
+    "ville": "Toulouse",
+    "iris": [
+      "Campus universitaire",
+      "Centre-ville",
+      "Zone industrielle",
+      "Zone portuaire",
+      "Zone commerciale",
+      "Quartier Ouest"
+    ]
+  },
+  {
+    "ville": "Nice",
+    "iris": [
+      "Campus universitaire",
+      "Quartier Ouest",
+      "Quartier historique",
+      "Zone industrielle"
+    ]
+  },
+  {
+    "ville": "Nantes",
+    "iris": [
+      "Quartier Est",
+      "Campus universitaire",
+      "Banlieue Sud"
+    ]
+  },
+  {
+    "ville": "Strasbourg",
+    "iris": [
+      "Centre-ville",
+      "Quartier historique",
+      "Zone industrielle",
+      "Zone portuaire"
+    ]
+  },
+  {
+    "ville": "Montpellier",
+    "iris": [
+      "Zone commerciale",
+      "Quartier Ouest",
+      "Banlieue Nord",
+      "Quartier historique",
+      "Zone industrielle"
+    ]
+  },
+  {
+    "ville": "Bordeaux",
+    "iris": [
+      "Zone commerciale",
+      "Zone portuaire",
+      "Zone industrielle",
+      "Campus universitaire",
+      "Quartier Est"
+    ]
+  },
+  {
+    "ville": "Lille",
+    "iris": [
+      "Centre-ville",
+      "Quartier Ouest",
+      "Quartier historique",
+      "Banlieue Nord",
+      "Campus universitaire",
+      "Zone commerciale"
+    ]
+  },
+  {
+    "ville": "Rennes",
+    "iris": [
+      "Zone industrielle",
+      "Centre-ville",
+      "Zone portuaire"
+    ]
+  },
+  {
+    "ville": "Reims",
+    "iris": [
+      "Banlieue Nord",
+      "Banlieue Sud",
+      "Zone industrielle",
+      "Zone commerciale"
+    ]
+  },
+  {
+    "ville": "Le Havre",
+    "iris": [
+      "Campus universitaire",
+      "Quartier Est",
+      "Zone portuaire"
+    ]
+  },
+  {
+    "ville": "Saint-Étienne",
+    "iris": [
+      "Banlieue Nord",
+      "Zone industrielle",
+      "Quartier historique",
+      "Banlieue Sud",
+      "Centre-ville",
+      "Quartier Ouest"
+    ]
+  },
+  {
+    "ville": "Toulon",
+    "iris": [
+      "Zone industrielle",
+      "Quartier Est",
+      "Quartier Ouest",
+      "Campus universitaire"
+    ]
+  },
+  {
+    "ville": "Grenoble",
+    "iris": [
+      "Banlieue Sud",
+      "Zone commerciale",
+      "Quartier historique",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Dijon",
+    "iris": [
+      "Quartier Est",
+      "Banlieue Nord",
+      "Zone commerciale",
+      "Quartier historique",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Angers",
+    "iris": [
+      "Quartier Ouest",
+      "Campus universitaire",
+      "Banlieue Nord",
+      "Banlieue Sud"
+    ]
+  },
+  {
+    "ville": "Nîmes",
+    "iris": [
+      "Zone industrielle",
+      "Zone portuaire",
+      "Banlieue Nord",
+      "Zone commerciale",
+      "Banlieue Sud",
+      "Quartier Est"
+    ]
+  },
+  {
+    "ville": "Villeurbanne",
+    "iris": [
+      "Quartier Ouest",
+      "Quartier historique",
+      "Zone portuaire",
+      "Quartier Est",
+      "Zone industrielle",
+      "Banlieue Sud"
+    ]
+  },
+  {
+    "ville": "Clermont-Ferrand",
+    "iris": [
+      "Quartier Est",
+      "Zone industrielle",
+      "Banlieue Sud"
+    ]
+  },
+  {
+    "ville": "Saint-Denis",
+    "iris": [
+      "Zone industrielle",
+      "Zone commerciale",
+      "Quartier historique",
+      "Quartier Ouest",
+      "Zone portuaire"
+    ]
+  },
+  {
+    "ville": "Aix-en-Provence",
+    "iris": [
+      "Zone commerciale",
+      "Centre-ville",
+      "Campus universitaire",
+      "Banlieue Nord",
+      "Zone portuaire"
+    ]
+  },
+  {
+    "ville": "Le Mans",
+    "iris": [
+      "Quartier historique",
+      "Quartier Est",
+      "Banlieue Nord"
+    ]
+  },
+  {
+    "ville": "Brest",
+    "iris": [
+      "Banlieue Sud",
+      "Centre-ville",
+      "Quartier historique"
+    ]
+  },
+  {
+    "ville": "Tours",
+    "iris": [
+      "Zone commerciale",
+      "Campus universitaire",
+      "Quartier Ouest",
+      "Quartier historique"
+    ]
+  },
+  {
+    "ville": "Amiens",
+    "iris": [
+      "Quartier Ouest",
+      "Zone commerciale",
+      "Quartier historique"
+    ]
+  },
+  {
+    "ville": "Limoges",
+    "iris": [
+      "Campus universitaire",
+      "Quartier Ouest",
+      "Banlieue Sud",
+      "Quartier Est",
+      "Zone industrielle"
+    ]
+  },
+  {
+    "ville": "Annecy",
+    "iris": [
+      "Quartier Ouest",
+      "Zone portuaire",
+      "Campus universitaire"
+    ]
+  },
+  {
+    "ville": "Perpignan",
+    "iris": [
+      "Quartier Est",
+      "Zone industrielle",
+      "Banlieue Nord",
+      "Quartier historique",
+      "Quartier Ouest"
+    ]
+  },
+  {
+    "ville": "Boulogne-Billancourt",
+    "iris": [
+      "Zone industrielle",
+      "Zone commerciale",
+      "Banlieue Sud"
+    ]
+  },
+  {
+    "ville": "Metz",
+    "iris": [
+      "Zone portuaire",
+      "Centre-ville",
+      "Quartier historique",
+      "Zone commerciale",
+      "Quartier Est",
+      "Campus universitaire"
+    ]
+  },
+  {
+    "ville": "Besançon",
+    "iris": [
+      "Quartier Ouest",
+      "Banlieue Sud",
+      "Quartier historique",
+      "Zone commerciale",
+      "Campus universitaire",
+      "Zone industrielle"
+    ]
+  },
+  {
+    "ville": "Orléans",
+    "iris": [
+      "Zone industrielle",
+      "Zone portuaire",
+      "Banlieue Nord",
+      "Quartier historique"
+    ]
+  },
+  {
+    "ville": "Rouen",
+    "iris": [
+      "Quartier Est",
+      "Zone portuaire",
+      "Quartier historique"
+    ]
+  },
+  {
+    "ville": "Mulhouse",
+    "iris": [
+      "Campus universitaire",
+      "Banlieue Sud",
+      "Zone portuaire",
+      "Quartier Ouest",
+      "Banlieue Nord",
+      "Quartier historique"
+    ]
+  },
+  {
+    "ville": "Caen",
+    "iris": [
+      "Zone portuaire",
+      "Quartier Ouest",
+      "Banlieue Sud",
+      "Banlieue Nord",
+      "Zone commerciale"
+    ]
+  },
+  {
+    "ville": "Nancy",
+    "iris": [
+      "Zone industrielle",
+      "Banlieue Sud",
+      "Quartier historique"
+    ]
+  },
+  {
+    "ville": "Argenteuil",
+    "iris": [
+      "Centre-ville",
+      "Banlieue Nord",
+      "Zone commerciale",
+      "Zone portuaire"
+    ]
+  },
+  {
+    "ville": "Montreuil",
+    "iris": [
+      "Quartier historique",
+      "Zone commerciale",
+      "Quartier Est",
+      "Banlieue Sud"
+    ]
+  },
+  {
+    "ville": "Saint-Paul",
+    "iris": [
+      "Zone portuaire",
+      "Banlieue Nord",
+      "Campus universitaire",
+      "Quartier historique",
+      "Zone industrielle"
+    ]
+  },
+  {
+    "ville": "Roubaix",
+    "iris": [
+      "Quartier Ouest",
+      "Banlieue Sud",
+      "Banlieue Nord",
+      "Campus universitaire"
+    ]
+  },
+  {
+    "ville": "Tourcoing",
+    "iris": [
+      "Quartier Est",
+      "Quartier Ouest",
+      "Quartier historique",
+      "Campus universitaire"
+    ]
+  },
+  {
+    "ville": "Nanterre",
+    "iris": [
+      "Banlieue Sud",
+      "Quartier Ouest",
+      "Campus universitaire",
+      "Banlieue Nord"
+    ]
+  },
+  {
+    "ville": "Avignon",
+    "iris": [
+      "Banlieue Nord",
+      "Zone portuaire",
+      "Quartier historique",
+      "Campus universitaire",
+      "Zone commerciale"
+    ]
+  },
+  {
+    "ville": "Vitry-sur-Seine",
+    "iris": [
+      "Zone commerciale",
+      "Banlieue Nord",
+      "Zone industrielle",
+      "Banlieue Sud"
+    ]
+  },
+  {
+    "ville": "Créteil",
+    "iris": [
+      "Quartier Ouest",
+      "Campus universitaire",
+      "Banlieue Nord"
+    ]
+  },
+  {
+    "ville": "Poitiers",
+    "iris": [
+      "Banlieue Nord",
+      "Banlieue Sud",
+      "Zone industrielle"
+    ]
+  },
+  {
+    "ville": "Aubervilliers",
+    "iris": [
+      "Zone commerciale",
+      "Campus universitaire",
+      "Quartier Ouest",
+      "Quartier Est",
+      "Quartier historique"
+    ]
+  },
+  {
+    "ville": "Versailles",
+    "iris": [
+      "Quartier Est",
+      "Zone portuaire",
+      "Quartier Ouest",
+      "Zone industrielle",
+      "Banlieue Sud",
+      "Banlieue Nord"
+    ]
+  },
+  {
+    "ville": "Colombes",
+    "iris": [
+      "Banlieue Nord",
+      "Zone industrielle",
+      "Campus universitaire",
+      "Zone commerciale",
+      "Quartier Ouest"
+    ]
+  },
+  {
+    "ville": "Asnières-sur-Seine",
+    "iris": [
+      "Banlieue Nord",
+      "Zone commerciale",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Aulnay-sous-Bois",
+    "iris": [
+      "Campus universitaire",
+      "Quartier Est",
+      "Banlieue Sud",
+      "Centre-ville",
+      "Banlieue Nord"
+    ]
+  },
+  {
+    "ville": "Rueil-Malmaison",
+    "iris": [
+      "Zone industrielle",
+      "Quartier Est",
+      "Zone commerciale"
+    ]
+  },
+  {
+    "ville": "Pau",
+    "iris": [
+      "Campus universitaire",
+      "Quartier historique",
+      "Centre-ville",
+      "Quartier Ouest",
+      "Banlieue Sud"
+    ]
+  },
+  {
+    "ville": "Champigny-sur-Marne",
+    "iris": [
+      "Campus universitaire",
+      "Quartier Ouest",
+      "Banlieue Nord"
+    ]
+  },
+  {
+    "ville": "Antibes",
+    "iris": [
+      "Banlieue Nord",
+      "Banlieue Sud",
+      "Quartier Ouest",
+      "Zone industrielle",
+      "Zone portuaire",
+      "Quartier historique"
+    ]
+  },
+  {
+    "ville": "La Rochelle",
+    "iris": [
+      "Quartier Est",
+      "Zone commerciale",
+      "Campus universitaire"
+    ]
+  },
+  {
+    "ville": "Saint-Maur-des-Fossés",
+    "iris": [
+      "Quartier historique",
+      "Quartier Est",
+      "Zone portuaire"
+    ]
+  },
+  {
+    "ville": "Calais",
+    "iris": [
+      "Zone portuaire",
+      "Zone industrielle",
+      "Banlieue Nord",
+      "Quartier Ouest",
+      "Banlieue Sud"
+    ]
+  },
+  {
+    "ville": "Saint-Nazaire",
+    "iris": [
+      "Banlieue Sud",
+      "Quartier historique",
+      "Quartier Ouest"
+    ]
+  },
+  {
+    "ville": "Drancy",
+    "iris": [
+      "Zone portuaire",
+      "Quartier historique",
+      "Campus universitaire"
+    ]
+  },
+  {
+    "ville": "Ajaccio",
+    "iris": [
+      "Quartier Ouest",
+      "Zone industrielle",
+      "Banlieue Nord",
+      "Banlieue Sud",
+      "Zone commerciale"
+    ]
+  },
+  {
+    "ville": "Mérignac",
+    "iris": [
+      "Zone industrielle",
+      "Banlieue Sud",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Issy-les-Moulineaux",
+    "iris": [
+      "Quartier Ouest",
+      "Centre-ville",
+      "Quartier historique",
+      "Zone commerciale",
+      "Banlieue Sud",
+      "Zone industrielle"
+    ]
+  },
+  {
+    "ville": "Levallois-Perret",
+    "iris": [
+      "Zone portuaire",
+      "Quartier Ouest",
+      "Zone industrielle",
+      "Quartier Est",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Noisy-le-Grand",
+    "iris": [
+      "Quartier historique",
+      "Banlieue Nord",
+      "Zone commerciale",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Quimper",
+    "iris": [
+      "Quartier historique",
+      "Quartier Est",
+      "Banlieue Sud",
+      "Zone industrielle",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "La Seyne-sur-Mer",
+    "iris": [
+      "Centre-ville",
+      "Quartier Est",
+      "Zone industrielle",
+      "Quartier historique",
+      "Campus universitaire"
+    ]
+  },
+  {
+    "ville": "Neuilly-sur-Seine",
+    "iris": [
+      "Zone commerciale",
+      "Zone portuaire",
+      "Quartier Ouest",
+      "Quartier Est",
+      "Banlieue Nord"
+    ]
+  },
+  {
+    "ville": "Vénissieux",
+    "iris": [
+      "Quartier Est",
+      "Quartier Ouest",
+      "Banlieue Sud",
+      "Zone industrielle",
+      "Quartier historique"
+    ]
+  },
+  {
+    "ville": "Cergy",
+    "iris": [
+      "Centre-ville",
+      "Quartier historique",
+      "Banlieue Nord",
+      "Quartier Est",
+      "Quartier Ouest"
+    ]
+  },
+  {
+    "ville": "Pessac",
+    "iris": [
+      "Zone commerciale",
+      "Banlieue Sud",
+      "Quartier Ouest"
+    ]
+  },
+  {
+    "ville": "Cayenne",
+    "iris": [
+      "Campus universitaire",
+      "Quartier Ouest",
+      "Banlieue Nord",
+      "Centre-ville",
+      "Zone commerciale",
+      "Quartier historique"
+    ]
+  },
+  {
+    "ville": "Clichy",
+    "iris": [
+      "Zone portuaire",
+      "Zone industrielle",
+      "Banlieue Nord"
+    ]
+  },
+  {
+    "ville": "Le Blanc-Mesnil",
+    "iris": [
+      "Quartier historique",
+      "Banlieue Sud",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Sartrouville",
+    "iris": [
+      "Quartier Ouest",
+      "Quartier Est",
+      "Campus universitaire"
+    ]
+  },
+  {
+    "ville": "Niort",
+    "iris": [
+      "Quartier historique",
+      "Banlieue Sud",
+      "Campus universitaire",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Maisons-Alfort",
+    "iris": [
+      "Zone commerciale",
+      "Zone industrielle",
+      "Campus universitaire",
+      "Quartier Ouest",
+      "Quartier historique"
+    ]
+  },
+  {
+    "ville": "Épinay-sur-Seine",
+    "iris": [
+      "Centre-ville",
+      "Zone industrielle",
+      "Campus universitaire",
+      "Quartier Ouest",
+      "Quartier historique"
+    ]
+  },
+  {
+    "ville": "Cholet",
+    "iris": [
+      "Centre-ville",
+      "Quartier historique",
+      "Quartier Est",
+      "Banlieue Sud",
+      "Zone industrielle"
+    ]
+  },
+  {
+    "ville": "Villejuif",
+    "iris": [
+      "Centre-ville",
+      "Campus universitaire",
+      "Quartier historique",
+      "Zone commerciale",
+      "Quartier Ouest"
+    ]
+  },
+  {
+    "ville": "Fréjus",
+    "iris": [
+      "Quartier historique",
+      "Quartier Est",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Meaux",
+    "iris": [
+      "Quartier Ouest",
+      "Zone commerciale",
+      "Zone industrielle",
+      "Zone portuaire",
+      "Banlieue Sud",
+      "Quartier Est"
+    ]
+  },
+  {
+    "ville": "Béziers",
+    "iris": [
+      "Zone portuaire",
+      "Banlieue Nord",
+      "Campus universitaire"
+    ]
+  },
+  {
+    "ville": "Valence",
+    "iris": [
+      "Centre-ville",
+      "Campus universitaire",
+      "Quartier historique",
+      "Quartier Est"
+    ]
+  },
+  {
+    "ville": "Narbonne",
+    "iris": [
+      "Zone industrielle",
+      "Quartier historique",
+      "Zone commerciale",
+      "Quartier Est",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Chambéry",
+    "iris": [
+      "Campus universitaire",
+      "Banlieue Nord",
+      "Zone portuaire",
+      "Quartier Ouest",
+      "Zone commerciale"
+    ]
+  },
+  {
+    "ville": "Saint-Quentin",
+    "iris": [
+      "Quartier Est",
+      "Banlieue Sud",
+      "Campus universitaire",
+      "Quartier Ouest",
+      "Zone commerciale",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Vannes",
+    "iris": [
+      "Quartier historique",
+      "Campus universitaire",
+      "Quartier Est"
+    ]
+  },
+  {
+    "ville": "Bobigny",
+    "iris": [
+      "Quartier Ouest",
+      "Quartier historique",
+      "Centre-ville",
+      "Banlieue Sud",
+      "Quartier Est",
+      "Zone industrielle"
+    ]
+  },
+  {
+    "ville": "Clamart",
+    "iris": [
+      "Banlieue Nord",
+      "Zone industrielle",
+      "Zone commerciale",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Bondy",
+    "iris": [
+      "Campus universitaire",
+      "Centre-ville",
+      "Quartier historique",
+      "Zone industrielle"
+    ]
+  },
+  {
+    "ville": "Montauban",
+    "iris": [
+      "Zone portuaire",
+      "Banlieue Sud",
+      "Zone industrielle",
+      "Campus universitaire"
+    ]
+  },
+  {
+    "ville": "Pantin",
+    "iris": [
+      "Quartier historique",
+      "Zone portuaire",
+      "Quartier Est",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Albi",
+    "iris": [
+      "Zone portuaire",
+      "Zone commerciale",
+      "Zone industrielle",
+      "Quartier historique",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "La Roche-sur-Yon",
+    "iris": [
+      "Banlieue Sud",
+      "Zone commerciale",
+      "Banlieue Nord",
+      "Quartier Est",
+      "Zone industrielle"
+    ]
+  },
+  {
+    "ville": "Hyères",
+    "iris": [
+      "Banlieue Sud",
+      "Quartier historique",
+      "Zone commerciale",
+      "Quartier Est",
+      "Zone industrielle"
+    ]
+  },
+  {
+    "ville": "Sarcelles",
+    "iris": [
+      "Quartier Ouest",
+      "Zone portuaire",
+      "Zone commerciale",
+      "Quartier historique"
+    ]
+  },
+  {
+    "ville": "Bayonne",
+    "iris": [
+      "Zone commerciale",
+      "Banlieue Sud",
+      "Zone industrielle",
+      "Banlieue Nord",
+      "Quartier Est"
+    ]
+  },
+  {
+    "ville": "Évreux",
+    "iris": [
+      "Quartier historique",
+      "Banlieue Nord",
+      "Quartier Est",
+      "Quartier Ouest",
+      "Campus universitaire",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Fontenay-sous-Bois",
+    "iris": [
+      "Quartier Est",
+      "Quartier Ouest",
+      "Zone portuaire"
+    ]
+  },
+  {
+    "ville": "Sevran",
+    "iris": [
+      "Quartier Est",
+      "Zone industrielle",
+      "Quartier historique"
+    ]
+  },
+  {
+    "ville": "Saint-Ouen-sur-Seine",
+    "iris": [
+      "Zone industrielle",
+      "Zone commerciale",
+      "Centre-ville",
+      "Campus universitaire",
+      "Zone portuaire"
+    ]
+  },
+  {
+    "ville": "Le Cannet",
+    "iris": [
+      "Quartier Ouest",
+      "Centre-ville",
+      "Zone commerciale",
+      "Quartier historique",
+      "Quartier Est"
+    ]
+  },
+  {
+    "ville": "Charleville-Mézières",
+    "iris": [
+      "Zone portuaire",
+      "Banlieue Nord",
+      "Quartier Est",
+      "Quartier historique",
+      "Quartier Ouest",
+      "Banlieue Sud"
+    ]
+  },
+  {
+    "ville": "Cherbourg-en-Cotentin",
+    "iris": [
+      "Zone commerciale",
+      "Quartier historique",
+      "Banlieue Nord",
+      "Zone industrielle"
+    ]
+  },
+  {
+    "ville": "Arles",
+    "iris": [
+      "Quartier Est",
+      "Zone industrielle",
+      "Zone portuaire",
+      "Centre-ville",
+      "Banlieue Nord",
+      "Banlieue Sud"
+    ]
+  },
+  {
+    "ville": "Beauvais",
+    "iris": [
+      "Banlieue Sud",
+      "Zone portuaire",
+      "Zone industrielle",
+      "Zone commerciale",
+      "Quartier Ouest"
+    ]
+  },
+  {
+    "ville": "Lorient",
+    "iris": [
+      "Quartier Est",
+      "Quartier Ouest",
+      "Quartier historique",
+      "Zone industrielle"
+    ]
+  },
+  {
+    "ville": "Châlons-en-Champagne",
+    "iris": [
+      "Banlieue Sud",
+      "Quartier historique",
+      "Banlieue Nord"
+    ]
+  },
+  {
+    "ville": "Livry-Gargan",
+    "iris": [
+      "Quartier Est",
+      "Quartier Ouest",
+      "Quartier historique",
+      "Campus universitaire",
+      "Centre-ville",
+      "Zone commerciale"
+    ]
+  },
+  {
+    "ville": "Brive-la-Gaillarde",
+    "iris": [
+      "Banlieue Sud",
+      "Campus universitaire",
+      "Zone portuaire",
+      "Zone commerciale",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Alfortville",
+    "iris": [
+      "Banlieue Sud",
+      "Campus universitaire",
+      "Quartier historique",
+      "Quartier Ouest",
+      "Zone commerciale",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Suresnes",
+    "iris": [
+      "Quartier Est",
+      "Banlieue Nord",
+      "Banlieue Sud",
+      "Campus universitaire",
+      "Zone commerciale",
+      "Zone portuaire"
+    ]
+  },
+  {
+    "ville": "Martigues",
+    "iris": [
+      "Campus universitaire",
+      "Centre-ville",
+      "Banlieue Sud",
+      "Zone industrielle"
+    ]
+  },
+  {
+    "ville": "Chalon-sur-Saône",
+    "iris": [
+      "Banlieue Sud",
+      "Zone portuaire",
+      "Quartier historique",
+      "Quartier Est"
+    ]
+  },
+  {
+    "ville": "Saint-Brieuc",
+    "iris": [
+      "Quartier Est",
+      "Banlieue Nord",
+      "Quartier historique",
+      "Zone commerciale"
+    ]
+  },
+  {
+    "ville": "Périgueux",
+    "iris": [
+      "Zone portuaire",
+      "Centre-ville",
+      "Quartier Est"
+    ]
+  },
+  {
+    "ville": "Saint-Herblain",
+    "iris": [
+      "Campus universitaire",
+      "Zone industrielle",
+      "Quartier Est",
+      "Quartier historique",
+      "Zone portuaire",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Bourg-en-Bresse",
+    "iris": [
+      "Zone industrielle",
+      "Campus universitaire",
+      "Quartier Est",
+      "Centre-ville",
+      "Quartier historique",
+      "Quartier Ouest"
+    ]
+  },
+  {
+    "ville": "Tarbes",
+    "iris": [
+      "Zone industrielle",
+      "Banlieue Sud",
+      "Zone commerciale"
+    ]
+  },
+  {
+    "ville": "Nevers",
+    "iris": [
+      "Banlieue Nord",
+      "Centre-ville",
+      "Zone industrielle",
+      "Quartier historique"
+    ]
+  },
+  {
+    "ville": "Castres",
+    "iris": [
+      "Zone portuaire",
+      "Banlieue Sud",
+      "Banlieue Nord"
+    ]
+  },
+  {
+    "ville": "Blois",
+    "iris": [
+      "Banlieue Sud",
+      "Quartier historique",
+      "Centre-ville",
+      "Zone commerciale",
+      "Zone portuaire",
+      "Quartier Est"
+    ]
+  },
+  {
+    "ville": "Salon-de-Provence",
+    "iris": [
+      "Zone portuaire",
+      "Centre-ville",
+      "Banlieue Nord",
+      "Zone commerciale"
+    ]
+  },
+  {
+    "ville": "Corbeil-Essonnes",
+    "iris": [
+      "Quartier Ouest",
+      "Campus universitaire",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Massy",
+    "iris": [
+      "Banlieue Nord",
+      "Zone portuaire",
+      "Zone commerciale",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Colmar",
+    "iris": [
+      "Centre-ville",
+      "Quartier Ouest",
+      "Quartier historique"
+    ]
+  },
+  {
+    "ville": "Istres",
+    "iris": [
+      "Campus universitaire",
+      "Zone industrielle",
+      "Zone commerciale",
+      "Quartier historique",
+      "Banlieue Sud",
+      "Zone portuaire"
+    ]
+  },
+  {
+    "ville": "Vincennes",
+    "iris": [
+      "Centre-ville",
+      "Zone industrielle",
+      "Banlieue Sud"
+    ]
+  },
+  {
+    "ville": "Douai",
+    "iris": [
+      "Zone industrielle",
+      "Zone commerciale",
+      "Banlieue Sud",
+      "Quartier Est",
+      "Quartier historique"
+    ]
+  },
+  {
+    "ville": "Choisy-le-Roi",
+    "iris": [
+      "Quartier Est",
+      "Quartier historique",
+      "Zone industrielle",
+      "Campus universitaire",
+      "Banlieue Sud"
+    ]
+  },
+  {
+    "ville": "Arras",
+    "iris": [
+      "Centre-ville",
+      "Quartier historique",
+      "Quartier Est"
+    ]
+  },
+  {
+    "ville": "Thionville",
+    "iris": [
+      "Quartier historique",
+      "Campus universitaire",
+      "Quartier Ouest",
+      "Quartier Est",
+      "Banlieue Nord",
+      "Zone portuaire"
+    ]
+  },
+  {
+    "ville": "Grasse",
+    "iris": [
+      "Banlieue Sud",
+      "Quartier Ouest",
+      "Zone industrielle",
+      "Zone portuaire",
+      "Campus universitaire",
+      "Banlieue Nord"
+    ]
+  },
+  {
+    "ville": "Gennevilliers",
+    "iris": [
+      "Quartier Est",
+      "Zone portuaire",
+      "Banlieue Sud"
+    ]
+  },
+  {
+    "ville": "Angoulême",
+    "iris": [
+      "Quartier Est",
+      "Quartier historique",
+      "Zone industrielle"
+    ]
+  },
+  {
+    "ville": "Montélimar",
+    "iris": [
+      "Banlieue Nord",
+      "Campus universitaire",
+      "Quartier historique",
+      "Zone portuaire",
+      "Quartier Est"
+    ]
+  },
+  {
+    "ville": "Alès",
+    "iris": [
+      "Campus universitaire",
+      "Quartier historique",
+      "Zone portuaire",
+      "Banlieue Sud",
+      "Quartier Ouest"
+    ]
+  },
+  {
+    "ville": "Laval",
+    "iris": [
+      "Quartier historique",
+      "Zone industrielle",
+      "Quartier Ouest",
+      "Centre-ville",
+      "Zone commerciale",
+      "Banlieue Sud"
+    ]
+  },
+  {
+    "ville": "Sète",
+    "iris": [
+      "Banlieue Nord",
+      "Zone commerciale",
+      "Zone portuaire",
+      "Banlieue Sud",
+      "Quartier Ouest",
+      "Centre-ville"
+    ]
+  },
+  {
+    "ville": "Gap",
+    "iris": [
+      "Centre-ville",
+      "Zone commerciale",
+      "Quartier historique",
+      "Banlieue Nord",
+      "Banlieue Sud",
+      "Quartier Est"
+    ]
+  },
+  {
+    "ville": "Roanne",
+    "iris": [
+      "Zone portuaire",
+      "Campus universitaire",
+      "Banlieue Sud",
+      "Zone industrielle"
+    ]
+  },
+  {
+    "ville": "Carcassonne",
+    "iris": [
+      "Centre-ville",
+      "Banlieue Sud",
+      "Zone industrielle",
+      "Zone commerciale",
+      "Campus universitaire",
+      "Quartier Est"
+    ]
+  },
+  {
+    "ville": "Compiègne",
+    "iris": [
+      "Quartier Ouest",
+      "Campus universitaire",
+      "Banlieue Sud",
+      "Zone commerciale",
+      "Zone industrielle"
+    ]
+  },
+  {
+    "ville": "Saint-Priest",
+    "iris": [
+      "Campus universitaire",
+      "Quartier Ouest",
+      "Zone commerciale",
+      "Zone industrielle",
+      "Quartier Est"
+    ]
+  },
+  {
+    "ville": "La Courneuve",
+    "iris": [
+      "Quartier Ouest",
+      "Centre-ville",
+      "Campus universitaire"
+    ]
+  },
+  {
+    "ville": "Maubeuge",
+    "iris": [
+      "Banlieue Sud",
+      "Zone portuaire",
+      "Quartier Est",
+      "Zone commerciale",
+      "Campus universitaire",
+      "Zone industrielle"
+    ]
+  },
+  {
+    "ville": "Saint-Martin-d'Hères",
+    "iris": [
+      "Zone industrielle",
+      "Banlieue Nord",
+      "Quartier Ouest",
+      "Quartier historique",
+      "Banlieue Sud"
+    ]
+  },
+  {
+    "ville": "Talence",
+    "iris": [
+      "Quartier historique",
+      "Centre-ville",
+      "Zone industrielle",
+      "Zone portuaire",
+      "Quartier Ouest",
+      "Campus universitaire"
+    ]
+  },
+  {
+    "ville": "Saint-Laurent-du-Maroni",
+    "iris": [
+      "Quartier Ouest",
+      "Zone portuaire",
+      "Quartier historique",
+      "Centre-ville",
+      "Zone commerciale"
+    ]
+  },
+  {
+    "ville": "Tournefeuille",
+    "iris": [
+      "Quartier Est",
+      "Centre-ville",
+      "Banlieue Sud",
+      "Quartier Ouest"
+    ]
+  }
+]
