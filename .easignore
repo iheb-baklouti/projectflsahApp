@@ -1,0 +1,35 @@
+# Répertoires à ignorer
+node_modules
+.expo
+.expo-shared
+android
+ios
+web-build
+coverage
+.bolt
+
+# Assets volumineux non essentiels
+assets/images/mock/
+assets/sounds/test/
+
+# Fichiers spécifiques
+*.log
+*.env
+*.md
+*.DS_Store
+*.iml
+*.apk
+*.zip
+
+# Tests, snapshots, debug
+__tests__/
+*.test.*
+*.spec.*
+*.snap
+
+# Archives, caches, autres
+.tmp/
+.cache/
+.vscode/
+.idea/
+*.bak

@@ -1,24 +1,12 @@
-// ✅ Écran Register avec intégration API et fallback mock
+// ✅ Écran Register avec design moderne pour zones et spécialités
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator, FlatList, Modal, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useAuth } from '@/hooks/useAuth';
-import { frenchCities } from '@/assets/data/frenchCities';
-import irisData from '@/assets/data/iris_zones_full_france.json';
-import { Eye, EyeOff, Info, CircleCheck as CheckCircle, Circle as XCircle } from 'lucide-react-native';
+import { Eye, EyeOff, Info, CircleCheck as CheckCircle, Circle as XCircle, Search, MapPin, X, Star, Users, Building2 } from 'lucide-react-native';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import ApiService, { isApiAvailable, ApiError, TechnicianRegistrationData } from '@/services/apiService';
-
-const skillOptions = [
-  'Plombier', 'Électricien', 'Serrurier', 'Chauffagiste', 'Peintre', 'Menuisier',
-  'Vitrier', 'Carreleur', 'Technicien alarme', 'Technicien clim', 'Mécanicien', 'Fibre optique'
-];
-
-const dynamicZones = (ville) => {
-  const match = irisData.find(item => ville.toLowerCase().includes(item.ville.toLowerCase()));
-  return match ? match.iris : ['Centre-ville', 'Banlieue Nord', 'Banlieue Sud'];
-};
+import ApiService, { isApiAvailable, ApiError, TechnicianRegistrationData, SpecialtyOption, ZoneSearchResult } from '@/services/apiService';
 
 const evaluatePassword = (password) => {
   const checklist = {
@@ -38,17 +26,12 @@ export default function RegisterScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [phone, setPhone] = useState('');
-  const [ville, setVille] = useState('');
-  const [villeQuery, setVilleQuery] = useState('');
-  const [codePostal, setCodePostal] = useState('');
-  const [address, setAddress] = useState('');
+  const [zoneQuery, setZoneQuery] = useState('');
   const [licenseNumber, setLicenseNumber] = useState('');
-  const [insuranceNumber, setInsuranceNumber] = useState('');
-  const [insuranceExpiry, setInsuranceExpiry] = useState('');
-  const [zoneManagerEmail, setZoneManagerEmail] = useState('');
-  const [skills, setSkills] = useState([]);
+  const [supervisorEmail, setSupervisorEmail] = useState('');
+  const [note, setNote] = useState('');
+  const [specialties, setSpecialties] = useState([]);
   const [zones, setZones] = useState([]);
-  const [availableZones, setAvailableZones] = useState([]);
   const [verificationMethod, setVerificationMethod] = useState('sms');
   const [showTooltip, setShowTooltip] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -57,7 +40,12 @@ export default function RegisterScreen() {
   const [registrationLoading, setRegistrationLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
 
-  const filteredCities = frenchCities.filter(city => city.toLowerCase().includes(villeQuery.toLowerCase())).slice(0, 10);
+  // États pour les données API
+  const [availableSpecialties, setAvailableSpecialties] = useState<SpecialtyOption[]>([]);
+  const [zoneSearchResults, setZoneSearchResults] = useState<ZoneSearchResult[]>([]);
+  const [searchingZones, setSearchingZones] = useState(false);
+  const [showZoneResults, setShowZoneResults] = useState(false);
+
   const { checklist, score } = evaluatePassword(password);
 
   // Vérifier la disponibilité de l'API au chargement
@@ -66,18 +54,102 @@ export default function RegisterScreen() {
       const available = await isApiAvailable();
       setApiAvailable(available);
       console.log('API disponible:', available);
+      
+      if (available) {
+        loadSpecialties();
+      }
     };
     
     checkApiAvailability();
   }, []);
 
-  useEffect(() => {
-    if (ville) setAvailableZones(dynamicZones(ville));
-    else setAvailableZones([]);
-  }, [ville]);
+  // Charger les spécialités depuis l'API
+  const loadSpecialties = async () => {
+    try {
+      const response = await ApiService.getSpecialties();
+      if (response.success && response.data) {
+        // Ajouter des IDs aux spécialités basés sur leur index
+        const specialtiesWithIds = response.data.map((specialty, index) => ({
+          ...specialty,
+          id: index + 1
+        }));
+        setAvailableSpecialties(specialtiesWithIds);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des spécialités:', error);
+      // Fallback avec des spécialités par défaut
+      setAvailableSpecialties([
+        { id: 1, value: 'plumbing', label: 'Plomberie' },
+        { id: 2, value: 'electricity', label: 'Électricité' },
+        { id: 3, value: 'locksmith', label: 'Serrurerie' },
+        { id: 4, value: 'hvac', label: 'CVC' },
+        { id: 5, value: 'painting', label: 'Peinture' },
+        { id: 6, value: 'carpentry', label: 'Menuiserie' },
+        { id: 7, value: 'masonry', label: 'Maçonnerie' },
+        { id: 8, value: 'roofing', label: 'Toiture' },
+      ]);
+    }
+  };
 
-  const toggleSkill = (s) => setSkills(prev => prev.includes(s) ? prev.filter(i => i !== s) : [...prev, s]);
-  const toggleZone = (z) => setZones(prev => prev.includes(z) ? prev.filter(i => i !== z) : [...prev, z]);
+  // Recherche de zones avec debounce
+  useEffect(() => {
+    if (zoneQuery.length >= 2 && apiAvailable) {
+      const timeoutId = setTimeout(() => {
+        searchZones(zoneQuery);
+      }, 500);
+      
+      return () => clearTimeout(timeoutId);
+    } else {
+      setZoneSearchResults([]);
+      setShowZoneResults(false);
+    }
+  }, [zoneQuery, apiAvailable]);
+
+  const searchZones = async (query: string) => {
+    if (!apiAvailable) return;
+    
+    setSearchingZones(true);
+    try {
+      const response = await ApiService.searchZones(query);
+      if (response.success && response.data) {
+        setZoneSearchResults(response.data);
+        setShowZoneResults(true);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la recherche de zones:', error);
+    } finally {
+      setSearchingZones(false);
+    }
+  };
+
+  const selectZone = (zone: ZoneSearchResult) => {
+    // Vérifier si la zone n'est pas déjà sélectionnée
+    if (!zones.find(z => z.id === zone.id)) {
+      setZones(prev => [...prev, zone]);
+    }
+    setZoneQuery('');
+    setZoneSearchResults([]);
+    setShowZoneResults(false);
+  };
+
+  const removeZone = (zoneId: number) => {
+    setZones(prev => prev.filter(z => z.id !== zoneId));
+  };
+
+  const toggleSpecialty = (specialty: SpecialtyOption) => {
+    setSpecialties(prev => {
+      const exists = prev.find(s => s.id === specialty.id);
+      if (exists) {
+        return prev.filter(s => s.id !== specialty.id);
+      } else {
+        return [...prev, specialty];
+      }
+    });
+  };
+
+  const removeSpecialty = (specialtyId: number) => {
+    setSpecialties(prev => prev.filter(s => s.id !== specialtyId));
+  };
 
   const validateForm = () => {
     if (!name.trim()) {
@@ -100,16 +172,8 @@ export default function RegisterScreen() {
       Alert.alert('Erreur', 'Le téléphone est requis');
       return false;
     }
-    if (!ville.trim()) {
-      Alert.alert('Erreur', 'La ville est requise');
-      return false;
-    }
-    if (!codePostal.trim()) {
-      Alert.alert('Erreur', 'Le code postal est requis');
-      return false;
-    }
-    if (skills.length === 0) {
-      Alert.alert('Erreur', 'Veuillez sélectionner au moins une compétence');
+    if (specialties.length === 0) {
+      Alert.alert('Erreur', 'Veuillez sélectionner au moins une spécialité');
       return false;
     }
     if (zones.length === 0) {
@@ -121,27 +185,27 @@ export default function RegisterScreen() {
 
   const handleApiRegistration = async () => {
     try {
-      const fullAddress = `${address || ''} ${ville} ${codePostal}`.trim();
-      
       const registrationData: TechnicianRegistrationData = {
         name: name.trim(),
         email: email.trim().toLowerCase(),
         password,
+        password_confirmation: confirmPassword,
         phone: phone.trim(),
-        sectors: skills, // Les compétences correspondent aux secteurs
-        zones,
-        address: fullAddress,
-        zone_manager_email: zoneManagerEmail.trim() || undefined,
+        specialties: specialties.map(s => s.id),
+        zones: zones.map(z => z.id.toString()),
         license_number: licenseNumber.trim() || undefined,
-        insurance_number: insuranceNumber.trim() || undefined,
-        insurance_expiry: insuranceExpiry.trim() || undefined,
+        supervisor_email: supervisorEmail.trim() || undefined,
+        note: note.trim() || undefined,
       };
 
       console.log('Envoi des données à l\'API:', registrationData);
 
       const response = await ApiService.registerTechnician(registrationData);
+      console.log('Réponse de l\'API:', response.data);
       
-      if (response.success) {
+      if (response) {
+        router.push('/login');
+        console.log('Réponse 1 de l\'API:', response);
         Alert.alert(
           'Inscription réussie',
           response.message || 'Votre inscription a été envoyée. En attente de validation par l\'administrateur.',
@@ -182,7 +246,9 @@ export default function RegisterScreen() {
   const handleMockRegistration = async () => {
     try {
       console.log('Utilisation du système mock pour l\'inscription');
-      await register(name, email, password, phone, ville, codePostal, skills, zones, verificationMethod);
+      const mockSkills = specialties.map(s => s.label);
+      const mockZones = zones.map(z => z.nom);
+      await register(name, email, password, phone, 'Paris', '75001', mockSkills, mockZones, verificationMethod);
       router.push('/VerifyCodeScreen');
     } catch (error) {
       console.error('Erreur mock:', error);
@@ -227,7 +293,7 @@ export default function RegisterScreen() {
           {/* Indicateur de mode API/Mock */}
           <View style={[styles.modeIndicator, { backgroundColor: apiAvailable ? '#E8F5E8' : '#FFF3CD' }]}>
             <Text style={[styles.modeText, { color: apiAvailable ? '#155724' : '#856404' }]}>
-              {apiAvailable ? '🌐 Mode API' : '🔧 Mode Local'}
+              {apiAvailable ? '🌐 Mode API (Local)' : '🔧 Mode Local'}
             </Text>
           </View>
 
@@ -246,22 +312,20 @@ export default function RegisterScreen() {
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeButton}>
               {showPassword ? <EyeOff size={20} color="#FFD700" /> : <Eye size={20} color="#FFD700" />}
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => setShowTooltip(true)} style={styles.eyeButton}>
+            <TouchableOpacity onPress={() => setShowTooltip(!showTooltip)} style={styles.eyeButton}>
               <Info size={20} color="#FFD700" />
             </TouchableOpacity>
           </View>
 
-          <Modal visible={showTooltip} transparent animationType="fade">
-            <TouchableOpacity style={styles.modalOverlay} onPress={() => setShowTooltip(false)}>
-              <View style={styles.tooltipBox}>
-                <Text style={styles.tooltipText}>🔒 Votre mot de passe doit contenir :
-- 8 caractères
+          {showTooltip && (
+            <View style={styles.tooltipContainer}>
+              <Text style={styles.tooltipText}>🔒 Votre mot de passe doit contenir :
+- 8 caractères minimum
 - 1 majuscule
 - 1 chiffre
 - 1 caractère spécial</Text>
-              </View>
-            </TouchableOpacity>
-          </Modal>
+            </View>
+          )}
 
           <View style={styles.passwordScoreRow}>
             <AnimatedCircularProgress size={40} width={5} fill={(score / 4) * 100} tintColor={score >= 3 ? '#00C851' : '#FFBB33'} backgroundColor="#eee" />
@@ -282,29 +346,6 @@ export default function RegisterScreen() {
 
           <TextInput style={styles.input} placeholder="Téléphone" keyboardType="phone-pad" value={phone} onChangeText={setPhone} />
           
-          {/* Adresse complète pour l'API */}
-          {apiAvailable && (
-            <TextInput 
-              style={styles.input} 
-              placeholder="Adresse complète" 
-              value={address} 
-              onChangeText={setAddress}
-              multiline
-            />
-          )}
-          
-          <TextInput style={styles.input} placeholder="Ville" value={villeQuery} onChangeText={setVilleQuery} />
-
-          {villeQuery.length > 0 && (
-            <FlatList data={filteredCities} keyExtractor={(item) => item} renderItem={({ item }) => (
-              <TouchableOpacity onPress={() => { setVille(item); setVilleQuery(item); }} style={styles.suggestionItem}>
-                <Text>{item}</Text>
-              </TouchableOpacity>
-            )} style={styles.suggestionList} />
-          )}
-
-          <TextInput style={styles.input} placeholder="Code postal" keyboardType="numeric" value={codePostal} onChangeText={setCodePostal} />
-
           {/* Champs supplémentaires pour l'API */}
           {apiAvailable && (
             <>
@@ -316,44 +357,192 @@ export default function RegisterScreen() {
               />
               <TextInput 
                 style={styles.input} 
-                placeholder="Numéro d'assurance (optionnel)" 
-                value={insuranceNumber} 
-                onChangeText={setInsuranceNumber} 
-              />
-              <TextInput 
-                style={styles.input} 
-                placeholder="Date d'expiration assurance (YYYY-MM-DD)" 
-                value={insuranceExpiry} 
-                onChangeText={setInsuranceExpiry} 
-              />
-              <TextInput 
-                style={styles.input} 
-                placeholder="Email du responsable de zone (optionnel)" 
+                placeholder="Email du superviseur (optionnel)" 
                 keyboardType="email-address"
                 autoCapitalize="none"
-                value={zoneManagerEmail} 
-                onChangeText={setZoneManagerEmail} 
+                value={supervisorEmail} 
+                onChangeText={setSupervisorEmail} 
+              />
+              <TextInput 
+                style={[styles.input, styles.textArea]}
+                placeholder="Note (optionnel)" 
+                value={note} 
+                onChangeText={setNote}
+                multiline
+                numberOfLines={3}
               />
             </>
           )}
 
-          {ville && availableZones.length > 0 && (
-            <>
-              <Text style={styles.label}>Zones de travail :</Text>
-              <View style={styles.tagContainer}>{availableZones.map(zone => (
-                <TouchableOpacity key={zone} style={[styles.tag, zones.includes(zone) && styles.tagSelected]} onPress={() => toggleZone(zone)}>
-                  <Text style={[styles.tagText, zones.includes(zone) && styles.tagTextSelected]}>{zone}</Text>
-                </TouchableOpacity>
-              ))}</View>
-            </>
+          {/* Section Zones de travail */}
+          {apiAvailable && (
+            <View style={styles.sectionContainer}>
+              <View style={styles.sectionHeader}>
+                <MapPin size={20} color="#FFD700" />
+                <Text style={styles.sectionTitle}>Zones de travail</Text>
+              </View>
+              
+              {/* Zones sélectionnées */}
+              {zones.length > 0 && (
+                <View style={styles.selectedContainer}>
+                  <Text style={styles.selectedLabel}>
+                    {zones.length} zone{zones.length > 1 ? 's' : ''} sélectionnée{zones.length > 1 ? 's' : ''}
+                  </Text>
+                  <View style={styles.selectedChips}>
+                    {zones.map((zone) => (
+                      <View key={zone.id} style={styles.selectedChip}>
+                        <Text style={styles.selectedChipText}>{zone.nom}</Text>
+                        <TouchableOpacity
+                          style={styles.removeChipButton}
+                          onPress={() => removeZone(zone.id)}
+                        >
+                          <X size={12} color="#000" />
+                        </TouchableOpacity>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
+
+              {/* Recherche de zones */}
+              <View style={styles.modernSearchContainer}>
+                <Search size={18} color="#666" />
+                <TextInput
+                  style={styles.modernSearchInput}
+                  placeholder="Rechercher des zones (Paris, Lyon, Marseille...)"
+                  value={zoneQuery}
+                  onChangeText={setZoneQuery}
+                  placeholderTextColor="#999"
+                />
+                {searchingZones && (
+                  <View style={styles.searchLoader}>
+                    <ActivityIndicator size="small" color="#FFD700" />
+                  </View>
+                )}
+              </View>
+
+              {/* Résultats de recherche de zones */}
+              {showZoneResults && zoneSearchResults.length > 0 && (
+                <View style={styles.modernResultsContainer}>
+                  {zoneSearchResults.slice(0, 6).map((zone) => {
+                    const isSelected = zones.find(z => z.id === zone.id);
+                    return (
+                      <TouchableOpacity
+                        key={zone.id}
+                        style={[
+                          styles.modernZoneCard,
+                          isSelected && styles.modernZoneCardSelected
+                        ]}
+                        onPress={() => selectZone(zone)}
+                        disabled={!!isSelected}
+                      >
+                        <View style={styles.zoneCardHeader}>
+                          <View style={[
+                            styles.zoneCardIcon,
+                            isSelected && styles.zoneCardIconSelected
+                          ]}>
+                            <Building2 size={16} color={isSelected ? "#000" : "#FFD700"} />
+                          </View>
+                          <View style={styles.zoneCardInfo}>
+                            <Text style={[
+                              styles.zoneCardTitle,
+                              isSelected && styles.zoneCardTitleSelected
+                            ]}>
+                              {zone.nom}
+                            </Text>
+                            <Text style={styles.zoneCardSubtitle}>
+                              {zone.codes_postaux.slice(0, 3).join(', ')}
+                              {zone.codes_postaux.length > 3 && '...'}
+                            </Text>
+                          </View>
+                          {isSelected && (
+                            <View style={styles.selectedBadge}>
+                              <CheckCircle size={16} color="#000" />
+                            </View>
+                          )}
+                        </View>
+                        <View style={styles.zoneCardFooter}>
+                          <View style={styles.populationBadge}>
+                            <Users size={12} color="#666" />
+                            <Text style={styles.populationText}>
+                              {zone.population.toLocaleString()} hab.
+                            </Text>
+                          </View>
+                        </View>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              )}
+            </View>
           )}
 
-          <Text style={styles.label}>Compétences :</Text>
-          <View style={styles.tagContainer}>{skillOptions.map(skill => (
-            <TouchableOpacity key={skill} style={[styles.tag, skills.includes(skill) && styles.tagSelected]} onPress={() => toggleSkill(skill)}>
-              <Text style={[styles.tagText, skills.includes(skill) && styles.tagTextSelected]}>{skill}</Text>
-            </TouchableOpacity>
-          ))}</View>
+          {/* Section Spécialités */}
+          <View style={styles.sectionContainer}>
+            <View style={styles.sectionHeader}>
+              <Star size={20} color="#FFD700" />
+              <Text style={styles.sectionTitle}>Spécialités</Text>
+            </View>
+            
+            {/* Spécialités sélectionnées */}
+            {specialties.length > 0 && (
+              <View style={styles.selectedContainer}>
+                <Text style={styles.selectedLabel}>
+                  {specialties.length} spécialité{specialties.length > 1 ? 's' : ''} sélectionnée{specialties.length > 1 ? 's' : ''}
+                </Text>
+                <View style={styles.selectedChips}>
+                  {specialties.map((specialty) => (
+                    <View key={specialty.id} style={styles.selectedChip}>
+                      <Text style={styles.selectedChipText}>{specialty.label}</Text>
+                      <TouchableOpacity
+                        style={styles.removeChipButton}
+                        onPress={() => removeSpecialty(specialty.id)}
+                      >
+                        <X size={12} color="#000" />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* Grille des spécialités */}
+            <View style={styles.modernSpecialtiesGrid}>
+              {availableSpecialties.map((specialty) => {
+                const isSelected = specialties.find(s => s.id === specialty.id);
+                return (
+                  <TouchableOpacity
+                    key={specialty.id}
+                    style={[
+                      styles.modernSpecialtyCard,
+                      isSelected && styles.modernSpecialtyCardSelected
+                    ]}
+                    onPress={() => toggleSpecialty(specialty)}
+                  >
+                    <View style={[
+                      styles.specialtyCardIcon,
+                      isSelected && styles.specialtyCardIconSelected
+                    ]}>
+                      <Text style={styles.specialtyEmoji}>
+                        {getSpecialtyEmoji(specialty.value)}
+                      </Text>
+                    </View>
+                    <Text style={[
+                      styles.specialtyCardText,
+                      isSelected && styles.specialtyCardTextSelected
+                    ]}>
+                      {specialty.label}
+                    </Text>
+                    {isSelected && (
+                      <View style={styles.specialtySelectedBadge}>
+                        <CheckCircle size={14} color="#000" />
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
 
           {/* Méthode de vérification seulement pour le mode mock */}
           {!apiAvailable && (
@@ -385,13 +574,37 @@ export default function RegisterScreen() {
   );
 }
 
+// Fonction pour obtenir l'emoji correspondant à chaque spécialité
+const getSpecialtyEmoji = (value: string) => {
+  const emojiMap = {
+    'plumbing': '🔧',
+    'electricity': '⚡',
+    'locksmith': '🔐',
+    'hvac': '❄️',
+    'painting': '🎨',
+    'carpentry': '🪚',
+    'masonry': '🧱',
+    'roofing': '🏠',
+  };
+  return emojiMap[value] || '🔨';
+};
+
 const styles = StyleSheet.create({
-  container: { padding: 20 },
-  title: { fontSize: 26, fontWeight: 'bold', marginBottom: 20 },
+  container: { 
+    padding: 20,
+    paddingBottom: 40,
+  },
+  title: { 
+    fontSize: 28, 
+    fontWeight: 'bold', 
+    marginBottom: 24,
+    color: '#1a1a1a',
+    textAlign: 'center',
+  },
   modeIndicator: {
     padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
+    borderRadius: 12,
+    marginBottom: 20,
     alignItems: 'center',
   },
   modeText: {
@@ -410,32 +623,330 @@ const styles = StyleSheet.create({
     color: '#c62828',
     fontSize: 14,
   },
-  input: { borderWidth: 1, borderColor: '#FFD700', borderRadius: 10, padding: 12, marginBottom: 12 },
-  inputPassword: { flex: 1, padding: 12 },
-  passwordRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#FFD700', borderRadius: 10, marginBottom: 12, paddingRight: 6 },
-  eyeButton: { padding: 6 },
-  modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
-  tooltipBox: { backgroundColor: '#fff', padding: 15, borderRadius: 10, maxWidth: '80%' },
-  tooltipText: { fontSize: 14 },
-  passwordScoreRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20 },
-  checkItem: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
-  submitBtn: { backgroundColor: '#000', padding: 16, borderRadius: 10, alignItems: 'center' },
-  submitText: { color: '#FFD700', fontWeight: 'bold', fontSize: 16 },
-  suggestionList: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#FFD700', borderRadius: 8, maxHeight: 200 },
-  suggestionItem: { padding: 10, borderBottomWidth: 1, borderBottomColor: '#eee' },
-  label: { fontWeight: '600', marginBottom: 6, color: '#111' },
-  tagContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 },
-  tag: { padding: 10, borderWidth: 1, borderColor: '#FFD700', borderRadius: 20, backgroundColor: '#fff' },
-  tagSelected: { backgroundColor: '#FFD700', borderColor: '#FFD700' },
-  tagText: { color: '#111' },
-  tagTextSelected: { color: '#000' },
-  radioGroup: { flexDirection: 'row', gap: 16, marginBottom: 24 },
-  radio: { borderWidth: 1, borderColor: '#FFD700', padding: 10, borderRadius: 8 },
-  radioSelected: { backgroundColor: '#FFD700', borderColor: '#FFD700' },
-  radioText: { color: '#000' },
+  input: { 
+    borderWidth: 1.5, 
+    borderColor: '#FFD700', 
+    borderRadius: 12, 
+    padding: 16, 
+    marginBottom: 16,
+    fontSize: 16,
+    backgroundColor: '#fafafa',
+  },
+  textArea: { 
+    height: 80, 
+    textAlignVertical: 'top' 
+  },
+  inputPassword: { 
+    flex: 1, 
+    padding: 16,
+    fontSize: 16,
+  },
+  passwordRow: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    borderWidth: 1.5, 
+    borderColor: '#FFD700', 
+    borderRadius: 12, 
+    marginBottom: 16, 
+    paddingRight: 8,
+    backgroundColor: '#fafafa',
+  },
+  eyeButton: { 
+    padding: 8 
+  },
+  tooltipContainer: {
+    backgroundColor: '#fff8e1',
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+    borderLeftWidth: 4,
+    borderLeftColor: '#FFD700',
+  },
+  tooltipText: { 
+    fontSize: 14,
+    color: '#333',
+    lineHeight: 20,
+  },
+  passwordScoreRow: { 
+    flexDirection: 'row', 
+    alignItems: 'flex-start', 
+    marginBottom: 24,
+    backgroundColor: '#f8f9fa',
+    padding: 16,
+    borderRadius: 12,
+  },
+  checkItem: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    marginBottom: 6 
+  },
+  
+  // Styles pour les sections modernes
+  sectionContainer: {
+    marginBottom: 32,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    paddingBottom: 8,
+    borderBottomWidth: 2,
+    borderBottomColor: '#FFD700',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#1a1a1a',
+    marginLeft: 8,
+  },
+  
+  // Styles pour les éléments sélectionnés
+  selectedContainer: {
+    backgroundColor: '#fff8e1',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#FFD700',
+  },
+  selectedLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 12,
+  },
+  selectedChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  selectedChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFD700',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  selectedChipText: {
+    color: '#000',
+    fontSize: 14,
+    fontWeight: '600',
+    marginRight: 6,
+  },
+  removeChipButton: {
+    padding: 2,
+  },
+  
+  // Styles pour la recherche moderne
+  modernSearchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1.5,
+    borderColor: '#e0e0e0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  modernSearchInput: {
+    flex: 1,
+    fontSize: 16,
+    marginLeft: 12,
+    color: '#333',
+  },
+  searchLoader: {
+    marginLeft: 8,
+  },
+  
+  // Styles pour les résultats de zones
+  modernResultsContainer: {
+    gap: 12,
+  },
+  modernZoneCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1.5,
+    borderColor: '#e0e0e0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  modernZoneCardSelected: {
+    borderColor: '#FFD700',
+    backgroundColor: '#fff8e1',
+  },
+  zoneCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  zoneCardIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#fff8e1',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  zoneCardIconSelected: {
+    backgroundColor: '#FFD700',
+  },
+  zoneCardInfo: {
+    flex: 1,
+  },
+  zoneCardTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 2,
+  },
+  zoneCardTitleSelected: {
+    color: '#000',
+  },
+  zoneCardSubtitle: {
+    fontSize: 13,
+    color: '#666',
+  },
+  selectedBadge: {
+    marginLeft: 8,
+  },
+  zoneCardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  populationBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    gap: 4,
+  },
+  populationText: {
+    fontSize: 12,
+    color: '#666',
+    fontWeight: '500',
+  },
+  
+  // Styles pour la grille des spécialités
+  modernSpecialtiesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  modernSpecialtyCard: {
+    width: '47%',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#e0e0e0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+    position: 'relative',
+  },
+  modernSpecialtyCardSelected: {
+    borderColor: '#FFD700',
+    backgroundColor: '#fff8e1',
+  },
+  specialtyCardIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#f8f9fa',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  specialtyCardIconSelected: {
+    backgroundColor: '#FFD700',
+  },
+  specialtyEmoji: {
+    fontSize: 24,
+  },
+  specialtyCardText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'center',
+  },
+  specialtyCardTextSelected: {
+    color: '#000',
+  },
+  specialtySelectedBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+  },
+  
+  submitBtn: { 
+    backgroundColor: '#000', 
+    padding: 18, 
+    borderRadius: 12, 
+    alignItems: 'center',
+    marginTop: 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  submitText: { 
+    color: '#FFD700', 
+    fontWeight: 'bold', 
+    fontSize: 16 
+  },
+  label: { 
+    fontWeight: '600', 
+    marginBottom: 8, 
+    color: '#111',
+    fontSize: 16,
+  },
+  radioGroup: { 
+    flexDirection: 'row', 
+    gap: 16, 
+    marginBottom: 24 
+  },
+  radio: { 
+    borderWidth: 1, 
+    borderColor: '#FFD700', 
+    padding: 12, 
+    borderRadius: 8,
+    minWidth: 80,
+    alignItems: 'center',
+  },
+  radioSelected: { 
+    backgroundColor: '#FFD700', 
+    borderColor: '#FFD700' 
+  },
+  radioText: { 
+    color: '#000',
+    fontSize: 14,
+    fontWeight: '500',
+  },
   loginLink: {
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 24,
   },
   loginLinkText: {
     color: '#FFD700',

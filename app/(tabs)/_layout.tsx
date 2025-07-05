@@ -9,8 +9,7 @@ import { BlurView } from 'expo-blur';
 import { Chrome as Home, Calendar, Clock, User, Plus } from 'lucide-react-native';
 import { TouchableOpacity, View } from 'react-native';
 import { COLORS } from '@/constants/Colors';
-import { setupGeofencing } from '../services/geofenceService';
-import { useEffect } from 'react';
+
 export default function TabsLayout() {
   const { isAuthenticated, isLoading } = useAuth();
   const { language } = useLanguage();
@@ -20,13 +19,7 @@ export default function TabsLayout() {
   if (!isAuthenticated && !isLoading) {
     return <Redirect href="/login" />;
   }
-useEffect(() => {
-    
-    // Only run geofencing setup on native platforms
-    if (Platform.OS !== 'web') {
-      setupGeofencing();
-    }
-  });
+
   if (isLoading) {
     return null;
   }

@@ -4,14 +4,17 @@ import { useAuth } from './useAuth';
 import { Alert } from 'react-native';
 import { useLanguage } from './useLanguage';
 import { translations } from '@/constants/Translations';
-import ApiService, { isApiAvailable, ApiError, InterventionData } from '@/services/apiService';
+import ApiService, { isApiAvailable, ApiError, InterventionData, InterventionFilters } from '@/services/apiService';
 
 // Demo data for interventions with short addresses
 const demoInterventions: Intervention[] = [
   {
     id: 'int_001',
+    number: 'INT-2025-0001',
     clientName: 'Jean Dupont',
     clientPhone: '+33123456789',
+    clientEmail: 'jean.dupont@email.com',
+    clientId: '1',
     address: '15 Rue de Rivoli, 75001 Paris',
     shortAddress: 'Châtelet, Paris',
     coordinates: {
@@ -22,135 +25,54 @@ const demoInterventions: Intervention[] = [
     description: 'Porte d\'entrée bloquée, client ne peut pas rentrer chez lui',
     status: 'NEW',
     isUrgent: true,
+    specialtyId: '1',
+    specialtyLabel: 'Serrurerie',
+    specialtyValue: 'locksmith',
+    addressId: '1',
+    addressDetails: {
+      housenumber: '15',
+      street: 'Rue de Rivoli',
+      city: 'Paris',
+      postcode: '75001',
+      citycode: '75101',
+      label: '15 Rue de Rivoli 75001 Paris',
+      name: '15 Rue de Rivoli',
+      country: 'France'
+    },
     createdAt: new Date(Date.now() - 3600000).toISOString(),
     updatedAt: new Date(Date.now() - 3600000).toISOString()
-  },
-  {
-    id: 'int_002',
-    clientName: 'Marie Martin',
-    clientPhone: '+33123456790',
-    address: '8 Avenue Montaigne, 75008 Paris',
-    shortAddress: 'Champs-Élysées, Paris',
-    coordinates: {
-      latitude: 48.866167,
-      longitude: 2.306981
-    },
-    serviceType: 'Plomberie',
-    description: 'Fuite d\'eau sous l\'évier de la cuisine',
-    status: 'ACCEPTED',
-    isUrgent: false,
-    scheduledDate: new Date(Date.now() + 86400000).toISOString(), // Tomorrow
-    scheduledTime: '14:30',
-    createdAt: new Date(Date.now() - 7200000).toISOString(),
-    updatedAt: new Date(Date.now() - 3600000).toISOString(),
-    acceptedAt: new Date(Date.now() - 3600000).toISOString(),
-    technicianId: '1'
-  },
-  {
-    id: 'int_003',
-    clientName: 'Sophie Bernard',
-    clientPhone: '+33123456791',
-    address: '25 Rue du Faubourg Saint-Honoré, 75008 Paris',
-    shortAddress: 'Faubourg Saint-Honoré, Paris',
-    coordinates: {
-      latitude: 48.871598,
-      longitude: 2.316229
-    },
-    serviceType: 'Serrurerie',
-    description: 'Changement de serrure après cambriolage',
-    status: 'EN_ROUTE',
-    isUrgent: true,
-    createdAt: new Date(Date.now() - 10800000).toISOString(),
-    updatedAt: new Date(Date.now() - 1800000).toISOString(),
-    acceptedAt: new Date(Date.now() - 7200000).toISOString(),
-    technicianId: '1'
-  },
-  {
-    id: 'int_004',
-    clientName: 'Thomas Petit',
-    clientPhone: '+33123456792',
-    address: '5 Boulevard Haussmann, 75009 Paris',
-    shortAddress: 'Opéra, Paris',
-    coordinates: {
-      latitude: 48.873792,
-      longitude: 2.332613
-    },
-    serviceType: 'Rideaux métalliques',
-    description: 'Rideau métallique bloqué, magasin ne peut pas ouvrir',
-    status: 'DONE',
-    isUrgent: true,
-    createdAt: new Date(Date.now() - 86400000).toISOString(), // Yesterday
-    updatedAt: new Date(Date.now() - 43200000).toISOString(),
-    acceptedAt: new Date(Date.now() - 82800000).toISOString(),
-    completedAt: new Date(Date.now() - 43200000).toISOString(),
-    technicianId: '2',
-    materials: [
-      {
-        id: 'mat_001',
-        name: 'Cylindre de serrure',
-        price: 45.90,
-        quantity: 1
-      },
-      {
-        id: 'mat_002',
-        name: 'Main d\'oeuvre',
-        price: 80.00,
-        quantity: 1
-      }
-    ],
-    totalAmount: 125.90,
-    paymentStatus: 'PAID'
-  },
-  {
-    id: 'int_005',
-    clientName: 'Claire Dubois',
-    clientPhone: '+33123456793',
-    address: '12 Rue de la Paix, 75002 Paris',
-    shortAddress: 'Opéra, Paris',
-    coordinates: {
-      latitude: 48.869809,
-      longitude: 2.330335
-    },
-    serviceType: 'Plomberie',
-    description: 'Remplacement d\'un robinet de cuisine',
-    status: 'JE_DOIS_REPASSER',
-    isUrgent: false,
-    scheduledDate: new Date(Date.now() + 172800000).toISOString(), // Day after tomorrow
-    scheduledTime: '10:00',
-    createdAt: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
-    updatedAt: new Date(Date.now() - 86400000).toISOString(),
-    acceptedAt: new Date(Date.now() - 172800000).toISOString(),
-    technicianId: '1',
-    notes: 'Pièce manquante, besoin de revenir avec un robinet spécifique'
-  },
-  {
-    id: 'int_006',
-    clientName: 'Philippe Laurent',
-    clientPhone: '+33123456794',
-    address: '3 Avenue des Champs-Élysées, 75008 Paris',
-    shortAddress: 'Champs-Élysées, Paris',
-    coordinates: {
-      latitude: 48.872210,
-      longitude: 2.299617
-    },
-    serviceType: 'Serrurerie',
-    description: 'Installation d\'une nouvelle serrure 3 points',
-    status: 'ANNULÉE',
-    isUrgent: false,
-    scheduledDate: new Date(Date.now() - 86400000).toISOString(), // Yesterday
-    scheduledTime: '16:00',
-    createdAt: new Date(Date.now() - 172800000).toISOString(),
-    updatedAt: new Date(Date.now() - 43200000).toISOString(),
-    acceptedAt: new Date(Date.now() - 129600000).toISOString(),
-    technicianId: '1'
   }
 ];
+
+// Interface pour les options de pagination et filtrage
+export interface InterventionListOptions {
+  page?: number;
+  perPage?: number;
+  status?: string;
+  search?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  sortBy?: 'created_at' | 'scheduled_at' | 'updated_at';
+  sortOrder?: 'asc' | 'desc';
+  urgent?: boolean;
+}
+
+// Interface pour les métadonnées de pagination
+export interface PaginationMeta {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  perPage: number;
+  from: number;
+  to: number;
+}
 
 export function useInterventions() {
   const [interventions, setInterventions] = useState<Intervention[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [apiAvailable, setApiAvailable] = useState(false);
+  const [paginationMeta, setPaginationMeta] = useState<PaginationMeta | null>(null);
   const { user, isAuthenticated, token } = useAuth();
   const { language } = useLanguage();
   const t = translations[language];
@@ -164,121 +86,429 @@ export function useInterventions() {
     checkApiAvailability();
   }, []);
 
-  // Transformer les données d'intervention de l'API vers le format local
-  const transformApiInterventionToLocal = (apiIntervention: InterventionData): Intervention => {
+  // ✅ Transformer les données d'intervention de l'API vers le format local
+  const transformApiInterventionToLocal = (apiIntervention: any): Intervention => {
+    console.log('Transforming intervention:', apiIntervention);
+    
+    // Mapping des statuts selon votre backend
     const statusMapping: Record<string, Intervention['status']> = {
-      'new': 'NEW',
-      'accepted': 'ACCEPTED',
-      'in_progress': 'EN_ROUTE',
-      'on_site': 'ON_SITE',
-      'completed': 'DONE',
-      'cancelled': 'ANNULÉE',
-      'needs_return': 'JE_DOIS_REPASSER',
+      'NEW': 'NEW',
+      'ACCEPTED': 'ACCEPTED',
+      'ASSIGNED': 'ASSIGNED',
+      'EN_ROUTE': 'EN_ROUTE',
+      'ON_SITE': 'ON_SITE',
+      'DONE': 'DONE',
+      'COMPLETED': 'COMPLETED',
+      'CANCELLED': 'CANCELLED',
     };
+
+    // ✅ Extraction des données selon la nouvelle structure
+    const clientName = apiIntervention.client?.name || 'Client inconnu';
+    const clientPhone = apiIntervention.client?.phone || 'Non renseigné';
+    const clientEmail = apiIntervention.client?.email || 'Non renseigné';
+    
+    // ✅ Construction de l'adresse complète
+    const addressLabel = apiIntervention.address?.label || 'Adresse non renseignée';
+    const shortAddress = `${apiIntervention.address?.city || ''}, ${apiIntervention.address?.postcode || ''}`.trim();
+    
+    // ✅ Coordonnées GPS
+    const latitude = parseFloat(apiIntervention.address?.latitude) || 48.8566;
+    const longitude = parseFloat(apiIntervention.address?.longitude) || 2.3522;
+    
+    // ✅ Spécialité
+    const specialtyLabel = apiIntervention.specialty?.label || 'Service';
+    const specialtyValue = apiIntervention.specialty?.value || 'general';
+    
+    // ✅ Technicien
+    const technicianName = apiIntervention.technician?.user?.name || undefined;
 
     return {
       id: apiIntervention.id.toString(),
-      clientName: `${apiIntervention.client.first_name} ${apiIntervention.client.last_name}`,
-      clientPhone: apiIntervention.client.phone,
-      address: `${apiIntervention.address.street}, ${apiIntervention.address.city} ${apiIntervention.address.postcode}`,
-      shortAddress: `${apiIntervention.address.city}`,
-      coordinates: {
-        latitude: 48.8566, // Coordonnées par défaut (Paris)
-        longitude: 2.3522
-      },
-      serviceType: apiIntervention.type,
-      description: apiIntervention.description,
+      number: apiIntervention.number || `INT-${apiIntervention.id}`,
+      clientName,
+      clientPhone,
+      clientEmail,
+      clientId: apiIntervention.client_id?.toString() || '',
+      address: addressLabel,
+      shortAddress,
+      coordinates: { latitude, longitude },
+      serviceType: specialtyLabel,
+      description: apiIntervention.description || 'Aucune description',
       status: statusMapping[apiIntervention.status] || 'NEW',
-      isUrgent: apiIntervention.urgent,
+      isUrgent: Boolean(apiIntervention.urgent),
+      specialtyId: apiIntervention.specialty_id?.toString() || '',
+      specialtyLabel,
+      specialtyValue,
+      addressId: apiIntervention.address_id?.toString() || '',
+      addressDetails: {
+        housenumber: apiIntervention.address?.housenumber,
+        street: apiIntervention.address?.street,
+        city: apiIntervention.address?.city || '',
+        postcode: apiIntervention.address?.postcode || '',
+        citycode: apiIntervention.address?.citycode || '',
+        context: apiIntervention.address?.context,
+        country: apiIntervention.address?.country,
+        state: apiIntervention.address?.state,
+        type: apiIntervention.address?.type,
+        label: apiIntervention.address?.label || '',
+        name: apiIntervention.address?.name,
+        additional_info: apiIntervention.address?.additional_info,
+      },
       scheduledDate: apiIntervention.scheduled_at,
-      scheduledTime: apiIntervention.scheduled_at ? new Date(apiIntervention.scheduled_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : undefined,
-      createdAt: new Date().toISOString(), // L'API ne fournit pas cette info
-      updatedAt: new Date().toISOString(),
-      acceptedAt: apiIntervention.technician ? new Date().toISOString() : undefined,
+      scheduledTime: apiIntervention.scheduled_at ? 
+        new Date(apiIntervention.scheduled_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : 
+        undefined,
+      createdAt: apiIntervention.created_at || new Date().toISOString(),
+      updatedAt: apiIntervention.updated_at || new Date().toISOString(),
+      acceptedAt: apiIntervention.technician ? apiIntervention.created_at : undefined,
       completedAt: apiIntervention.completed_at,
-      technicianId: apiIntervention.technician?.id.toString(),
-      notes: apiIntervention.completion_notes,
-      totalAmount: 0, // L'API ne fournit pas cette info dans la liste
-      paymentStatus: 'PENDING',
+      technicianId: apiIntervention.technician_id?.toString(),
+      technicianName,
+      cancellationReason: apiIntervention.cancellation_reason,
+      notes: apiIntervention.notes,
+      totalAmount: apiIntervention.total_amount || 0,
+      paymentStatus: apiIntervention.payment_status || 'PENDING',
     };
   };
 
   // Load interventions based on authentication state
   useEffect(() => {
-    console.log('isAuthenticated', isAuthenticated);
     if (isAuthenticated) {
       loadInterventions();
     } else {
       setInterventions([]);
     }
-  }, [isAuthenticated, apiAvailable]); // Depend on apiAvailable too
+  }, [isAuthenticated, apiAvailable]);
 
-  // Memoize loadInterventions function
-  const loadInterventions = useCallback(async () => {
+  // ✅ Fonction principale pour charger les interventions ACTIVES (non terminées)
+  const loadInterventions = useCallback(async (options: InterventionListOptions = {}) => {
     setIsLoading(true);
     setError(null);
     
     try {
-      console.log('token', token);
-      if (!apiAvailable && token) {
-        // Charger depuis l'API
+      if (token) {
+        // ✅ Charger depuis l'API et attendre indéfiniment
         try {
-          const response = await ApiService.getInterventions(token);
-          console.log('response', response);
-          console.log(response.success ,'&&', response.data);
+          const filters: InterventionFilters = {
+            page: options.page || 1,
+            per_page: options.perPage || 20,
+            status: options.status,
+            search: options.search,
+            date_from: options.dateFrom,
+            date_to: options.dateTo,
+            sort_by: options.sortBy || 'created_at',
+            sort_order: options.sortOrder || 'desc',
+            urgent: options.urgent,
+          };
+
+          console.log('🚀 Chargement des interventions actives depuis l\'API...');
+          const response = await ApiService.getInterventions(token, filters);
+          
           if (response.success && response.data) {
-            const transformedInterventions = response.data.map(transformApiInterventionToLocal);
-            console.log(transformedInterventions);
+            console.log('✅ Réponse API reçue:', response.data);
+            
+            // Gérer différentes structures de réponse
+            let interventionsData = [];
+            let metaData = null;
+            
+            if (Array.isArray(response.data)) {
+              interventionsData = response.data;
+            } else if (response.data.data && Array.isArray(response.data.data)) {
+              interventionsData = response.data.data;
+              metaData = response.data.meta;
+            } else if (response.data.interventions && Array.isArray(response.data.interventions)) {
+              interventionsData = response.data.interventions;
+              metaData = response.data.pagination || response.data.meta;
+            }
+            
+            // ✅ FILTRER LES INTERVENTIONS TERMINÉES POUR LE FEED
+            const activeInterventions = interventionsData.filter(
+              (intervention: any) => intervention.status !== 'COMPLETED' && intervention.status !== 'CANCELLED'
+            );
+            
+            console.log('🔄 Transformation de', activeInterventions.length, 'interventions actives');
+            
+            const transformedInterventions = activeInterventions.map(transformApiInterventionToLocal);
             setInterventions(transformedInterventions);
+            
+            // Mettre à jour les métadonnées de pagination si disponibles
+            if (metaData) {
+              setPaginationMeta({
+                currentPage: metaData.current_page || metaData.page || 1,
+                totalPages: metaData.last_page || metaData.total_pages || 1,
+                totalItems: metaData.total || activeInterventions.length,
+                perPage: metaData.per_page || metaData.limit || 20,
+                from: metaData.from || 1,
+                to: metaData.to || activeInterventions.length,
+              });
+            } else {
+              const currentPage = options.page || 1;
+              const perPage = options.perPage || 20;
+              setPaginationMeta({
+                currentPage,
+                totalPages: Math.ceil(Math.max(1, activeInterventions.length) / perPage),
+                totalItems: activeInterventions.length,
+                perPage,
+                from: activeInterventions.length > 0 ? (currentPage - 1) * perPage + 1 : 0,
+                to: Math.min(currentPage * perPage, activeInterventions.length),
+              });
+            }
+            
+            console.log('✅ Interventions actives chargées avec succès:', transformedInterventions.length);
             return;
           }
         } catch (apiError) {
-          console.error('API interventions error:', apiError);
-          // Fallback vers le système mock
+          console.error('❌ Erreur API interventions:', apiError);
+          throw apiError; // Propager l'erreur pour afficher le spinner
         }
       }
 
-      // Système mock (fallback ou si API non disponible)
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // ❌ Fallback vers les mocks seulement si API non disponible
+      console.log('🎭 API non disponible, utilisation des mocks');
+      await loadMockInterventions(options);
       
-      if (user) {
-        if (user.id === '1') {
-          setInterventions(demoInterventions.filter(
-            int => int.technicianId !== '2' || int.technicianId === undefined
-          ));
-        } else if (user.id === '2') {
-          setInterventions(demoInterventions.filter(
-            int => int.serviceType === 'Rideaux métalliques' || int.technicianId === '2'
-          ));
-        } else {
-          setInterventions(demoInterventions);
-        }
-      } else {
-        setInterventions([]);
-      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load interventions');
-      console.error('Error loading interventions:', err);
+      console.error('❌ Erreur générale:', err);
+      // En cas d'erreur, continuer d'afficher le spinner
     } finally {
       setIsLoading(false);
     }
   }, [user, apiAvailable, token]);
 
+  // ✅ Fonction pour charger les interventions TERMINÉES (pour l'historique)
+  const loadCompletedInterventions = useCallback(async (options: InterventionListOptions = {}) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      if (token) {
+        try {
+          const filters: InterventionFilters = {
+            page: options.page || 1,
+            per_page: options.perPage || 20,
+            search: options.search,
+            date_from: options.dateFrom,
+            date_to: options.dateTo,
+            sort_by: options.sortBy || 'updated_at',
+            sort_order: options.sortOrder || 'desc',
+          };
+
+          console.log('🚀 Chargement des interventions terminées depuis l\'API...');
+          const response = await ApiService.getInterventions(token, filters);
+          
+          if (response.success && response.data) {
+            let interventionsData = [];
+            let metaData = null;
+            
+            if (Array.isArray(response.data)) {
+              interventionsData = response.data;
+            } else if (response.data.data && Array.isArray(response.data.data)) {
+              interventionsData = response.data.data;
+              metaData = response.data.meta;
+            }
+            
+            // ✅ FILTRER SEULEMENT LES INTERVENTIONS TERMINÉES POUR L'HISTORIQUE
+            const completedInterventions = interventionsData.filter(
+              (intervention: any) => intervention.status === 'COMPLETED' || intervention.status === 'CANCELLED'
+            );
+            
+            console.log('🔄 Transformation de', completedInterventions.length, 'interventions terminées');
+            
+            const transformedInterventions = completedInterventions.map(transformApiInterventionToLocal);
+            setInterventions(transformedInterventions);
+            
+            if (metaData) {
+              setPaginationMeta({
+                currentPage: metaData.current_page || 1,
+                totalPages: metaData.last_page || 1,
+                totalItems: metaData.total || completedInterventions.length,
+                perPage: metaData.per_page || 20,
+                from: metaData.from || 1,
+                to: metaData.to || completedInterventions.length,
+              });
+            }
+            return;
+          }
+        } catch (apiError) {
+          console.error('API completed interventions error:', apiError);
+          throw apiError;
+        }
+      }
+      
+      // Fallback vers le système mock
+      const completedOptions = {
+        ...options,
+        status: 'COMPLETED,CANCELLED'
+      };
+      await loadMockInterventions(completedOptions);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load completed interventions');
+      console.error('❌ Erreur interventions terminées:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [apiAvailable, token]);
+
+  // Fonction pour charger les données mock séparément
+  const loadMockInterventions = async (options: InterventionListOptions = {}) => {
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    if (user) {
+      let filteredInterventions = [...demoInterventions];
+      
+      // Appliquer les filtres pour le système mock
+      if (options.status && options.status !== 'all') {
+        filteredInterventions = filteredInterventions.filter(int => int.status === options.status);
+      }
+      
+      if (options.search) {
+        const searchLower = options.search.toLowerCase();
+        filteredInterventions = filteredInterventions.filter(int =>
+          int.clientName.toLowerCase().includes(searchLower) ||
+          int.address.toLowerCase().includes(searchLower) ||
+          int.description.toLowerCase().includes(searchLower) ||
+          int.serviceType.toLowerCase().includes(searchLower)
+        );
+      }
+      
+      if (options.urgent !== undefined) {
+        filteredInterventions = filteredInterventions.filter(int => int.isUrgent === options.urgent);
+      }
+      
+      // Tri
+      if (options.sortBy) {
+        filteredInterventions.sort((a, b) => {
+          let aValue: string | number = '';
+          let bValue: string | number = '';
+          
+          switch (options.sortBy) {
+            case 'created_at':
+              aValue = new Date(a.createdAt).getTime();
+              bValue = new Date(b.createdAt).getTime();
+              break;
+            case 'scheduled_at':
+              aValue = a.scheduledDate ? new Date(a.scheduledDate).getTime() : 0;
+              bValue = b.scheduledDate ? new Date(b.scheduledDate).getTime() : 0;
+              break;
+            case 'updated_at':
+              aValue = new Date(a.updatedAt).getTime();
+              bValue = new Date(b.updatedAt).getTime();
+              break;
+          }
+          
+          if (options.sortOrder === 'asc') {
+            return aValue > bValue ? 1 : -1;
+          } else {
+            return aValue < bValue ? 1 : -1;
+          }
+        });
+      }
+      
+      // Pagination pour le système mock
+      const page = options.page || 1;
+      const perPage = options.perPage || 20;
+      const startIndex = (page - 1) * perPage;
+      const endIndex = startIndex + perPage;
+      const paginatedInterventions = filteredInterventions.slice(startIndex, endIndex);
+      
+      setInterventions(paginatedInterventions);
+      setPaginationMeta({
+        currentPage: page,
+        totalPages: Math.ceil(filteredInterventions.length / perPage),
+        totalItems: filteredInterventions.length,
+        perPage,
+        from: filteredInterventions.length > 0 ? startIndex + 1 : 0,
+        to: Math.min(endIndex, filteredInterventions.length),
+      });
+    } else {
+      setInterventions([]);
+      setPaginationMeta(null);
+    }
+  };
+
+  // Fonction pour charger les interventions planifiées
+  const loadScheduledInterventions = useCallback(async (options: InterventionListOptions = {}) => {
+    if (token) {
+      try {
+        const filters: InterventionFilters = {
+          page: options.page || 1,
+          per_page: options.perPage || 20,
+          date_from: new Date().toISOString().split('T')[0],
+          search: options.search,
+          sort_by: 'scheduled_at',
+          sort_order: 'asc',
+        };
+
+        const response = await ApiService.getScheduledInterventions(token, filters);
+        
+        if (response.success && response.data) {
+          let interventionsData = [];
+          let metaData = null;
+          
+          if (Array.isArray(response.data)) {
+            interventionsData = response.data;
+          } else if (response.data.data && Array.isArray(response.data.data)) {
+            interventionsData = response.data.data;
+            metaData = response.data.meta;
+          }
+          
+          const transformedInterventions = interventionsData.map(transformApiInterventionToLocal);
+          setInterventions(transformedInterventions);
+          
+          if (metaData) {
+            setPaginationMeta({
+              currentPage: metaData.current_page || 1,
+              totalPages: metaData.last_page || 1,
+              totalItems: metaData.total || interventionsData.length,
+              perPage: metaData.per_page || 20,
+              from: metaData.from || 1,
+              to: metaData.to || interventionsData.length,
+            });
+          }
+          return;
+        }
+      } catch (apiError) {
+        console.error('API scheduled interventions error:', apiError);
+      }
+    }
+    
+    // Fallback vers le système mock
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const scheduledOptions = {
+      ...options,
+      dateFrom: today.toISOString().split('T')[0],
+      sortBy: 'scheduled_at' as const,
+      sortOrder: 'asc' as const,
+    };
+    await loadMockInterventions(scheduledOptions);
+  }, [apiAvailable, token]);
+
   // Refresh interventions
-  const refreshInterventions = useCallback(async () => {
-    await loadInterventions();
+  const refreshInterventions = useCallback(async (options?: InterventionListOptions) => {
+    await loadInterventions(options);
   }, [loadInterventions]);
+
+  // Refresh completed interventions
+  const refreshCompletedInterventions = useCallback(async (options?: InterventionListOptions) => {
+    await loadCompletedInterventions(options);
+  }, [loadCompletedInterventions]);
+
+  // Refresh scheduled interventions
+  const refreshScheduledInterventions = useCallback(async (options?: InterventionListOptions) => {
+    await loadScheduledInterventions(options);
+  }, [loadScheduledInterventions]);
 
   // Take an intervention
   const takeIntervention = useCallback(async (id: string) => {
     try {
       if (token) {
-        // Accepter via API
         try {
           const response = await ApiService.acceptIntervention(token, id);
           
           if (response.success) {
-            // Recharger les interventions pour avoir les données à jour
             await loadInterventions();
             return true;
           }
@@ -287,14 +517,15 @@ export function useInterventions() {
           if (apiError instanceof ApiError) {
             throw apiError;
           }
-          // Fallback vers le système mock
+        } finally {
+          // Toujours recharger les interventions, même en cas d’erreur
+          await loadInterventions();
         }
       }
 
       // Système mock (fallback)
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Update local intervention status
       setInterventions(prevInterventions => 
         prevInterventions.map(intervention => 
           intervention.id === id 
@@ -317,44 +548,48 @@ export function useInterventions() {
     }
   }, [user, apiAvailable, token, loadInterventions]);
 
-  // Update intervention status
+  // ✅ NOUVELLE FONCTION: Mettre à jour le statut d'une intervention
   const updateInterventionStatus = useCallback(async (id: string, status: Intervention['status']) => {
     try {
-      if (apiAvailable && token) {
-        // Mettre à jour via API
+      if (token) {
         try {
-          const statusMapping: Record<Intervention['status'], string> = {
-            'NEW': 'new',
-            'ACCEPTED': 'accepted',
-            'EN_ROUTE': 'in_progress',
-            'ON_SITE': 'on_site',
-            'DONE': 'completed',
-            'ANNULÉE': 'cancelled',
-            'JE_DOIS_REPASSER': 'needs_return',
-          };
-
-          const response = await ApiService.updateIntervention(token, id, {
-            status: statusMapping[status]
+          // ✅ Utiliser la nouvelle API pour mettre à jour le statut
+          const response = await fetch(`http://127.0.0.1:8000/api/interventions/${id}/status`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({ status }),
           });
 
-          if (response.success) {
-            // Recharger les interventions pour avoir les données à jour
+          if (response.ok) {
+            const data = await response.json();
+            console.log('✅ Statut mis à jour:', data);
+            
+            // Recharger les interventions pour refléter le changement
             await loadInterventions();
             return true;
+          } else {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erreur lors de la mise à jour du statut');
           }
         } catch (apiError) {
-          console.error('API update intervention error:', apiError);
-          if (apiError instanceof ApiError) {
+          console.error('API update status error:', apiError);
+          if (apiError instanceof Error) {
             throw apiError;
           }
-          // Fallback vers le système mock
+        } finally {
+          // Toujours recharger les interventions, même en cas d’erreur
+          await loadInterventions();
         }
+        
       }
 
       // Système mock (fallback)
       await new Promise(resolve => setTimeout(resolve, 500));
 
-      // Check if user owns this intervention
       const intervention = interventions.find(int => int.id === id);
       if (!intervention) {
         throw new Error('Intervention not found');
@@ -364,7 +599,6 @@ export function useInterventions() {
         throw new Error('You are not assigned to this intervention');
       }
 
-      // Update local intervention status
       setInterventions(prevInterventions => 
         prevInterventions.map(intervention => 
           intervention.id === id 
@@ -372,7 +606,7 @@ export function useInterventions() {
                 ...intervention,
                 status,
                 updatedAt: new Date().toISOString(),
-                ...(status === 'DONE' ? { completedAt: new Date().toISOString() } : {})
+                ...(status === 'COMPLETED' ? { completedAt: new Date().toISOString() } : {})
               }
             : intervention
         )
@@ -389,8 +623,7 @@ export function useInterventions() {
   // Get intervention by ID
   const getInterventionById = useCallback(async (id: string): Promise<Intervention | null> => {
     try {
-      if (apiAvailable && token) {
-        // Récupérer depuis l'API
+      if (token) {
         try {
           const response = await ApiService.getInterventionById(token, id);
           
@@ -399,45 +632,83 @@ export function useInterventions() {
           }
         } catch (apiError) {
           console.error('API get intervention error:', apiError);
-          // Fallback vers le système mock
+        } finally {
+          // Toujours recharger les interventions, même en cas d’erreur
+          await loadInterventions();
         }
       }
 
-      // Système mock (fallback)
-      return interventions.find(int => int.id === id) || null;
+      return interventions.find(int => int.id === id) || demoInterventions.find(int => int.id === id) || null;
     } catch (err) {
       console.error('Error getting intervention by ID:', err);
       return null;
     }
   }, [interventions, apiAvailable, token]);
 
-  // Refresh completed interventions
-  const refreshCompletedInterventions = useCallback(async () => {
-    await loadInterventions();
+  // Search interventions
+  const searchInterventions = useCallback(async (searchQuery: string, options: InterventionListOptions = {}) => {
+    const searchOptions = {
+      ...options,
+      search: searchQuery,
+    };
+    await loadInterventions(searchOptions);
   }, [loadInterventions]);
 
-  // Get interventions scheduled for future dates
+  // Vérifier si l'utilisateur peut accéder aux détails d'une intervention
+  const canAccessInterventionDetails = useCallback((intervention: Intervention): boolean => {
+    if (!user) return false;
+    
+    // Si l'intervention est assignée à ce technicien
+    if (intervention.technicianId) {
+      return true;
+    }
+    
+    // Si l'intervention n'est pas encore prise par personne et que le statut est NEW
+    if (intervention.status === 'NEW' && !intervention.technicianId) {
+      return false;
+    }
+    
+    // Pour les interventions terminées/annulées, permettre l'accès en lecture seule
+    if (['DONE', 'COMPLETED', 'CANCELLED'].includes(intervention.status)) {
+      return true;
+    }
+    
+    return false;
+  }, [user]);
+
+  // Get interventions scheduled for future dates (computed from current interventions)
   const scheduledInterventions = interventions.filter(
     int => int.scheduledDate && new Date(int.scheduledDate) >= new Date(new Date().setHours(0, 0, 0, 0))
   );
 
-  // Get completed interventions (DONE or CANCELLED)
+  // Get completed interventions (computed from current interventions)
   const completedInterventions = interventions.filter(
-    int => int.status === 'DONE' || int.status === 'ANNULÉE'
+    int => int.status === 'COMPLETED' || int.status === 'CANCELLED'
   );
 
   return {
+    // Data
     interventions,
     scheduledInterventions,
     completedInterventions,
+    paginationMeta,
+    
+    // State
     isLoading,
     error,
+    apiAvailable,
+    
+    // Actions
+    loadInterventions,
+    loadCompletedInterventions,
+    loadScheduledInterventions,
     refreshInterventions,
     refreshCompletedInterventions,
+    refreshScheduledInterventions,
+    searchInterventions,
     takeIntervention,
-    updateInterventionStatus,
-    getInterventionById
+    updateInterventionStatus, // ✅ Nouvelle fonction
+    getInterventionById,
+    canAccessInterventionDetails,
   };
 }
-
-export { useInterventions }

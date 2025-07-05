@@ -1,11 +1,12 @@
 export type InterventionStatus = 
   | 'NEW'
   | 'ACCEPTED'
+  | 'ASSIGNED'
   | 'EN_ROUTE'
   | 'ON_SITE'
   | 'DONE'
-  | 'JE_DOIS_REPASSER'
-  | 'ANNULÉE';
+  | 'COMPLETED'
+  | 'CANCELLED';
 
 export interface Material {
   id: string;
@@ -13,11 +14,7 @@ export interface Material {
   price: number;
   quantity: number;
 }
-export type InterventionsListResponse = {
-  success: boolean;
-  data: Intervention[];
-  message?: string;
-};
+
 export interface Photo {
   id: string;
   uri: string;
@@ -25,12 +22,47 @@ export interface Photo {
   type: 'before' | 'after' | 'material' | 'other';
 }
 
+export interface Invoice {
+  id: string;
+  intervention_id: string;
+  number: string;
+  amount_ht: number;
+  vat_rate: number;
+  amount_ttc: number;
+  commission_amount?: number;
+  commission_paid?: boolean;
+  status: 'pending' | 'paid' | 'late' | 'cancelled';
+  issue_date: string;
+  due_date: string;
+  payment_date?: string;
+  url?: string;
+  description: string[];
+  payment_terms: string;
+  intervention?: {
+    id: string;
+    number: string;
+    client: {
+      id: string;
+      name: string;
+      company_name?: string;
+    };
+    technician: {
+      id: string;
+      name: string;
+    };
+  };
+}
+
+// ✅ Interface mise à jour selon la nouvelle structure API
 export interface Intervention {
   id: string;
+  number: string; // "INT-2025-0006"
   clientName: string;
   clientPhone: string;
+  clientEmail: string;
+  clientId: string;
   address: string;
-  shortAddress?: string; // Adresse courte pour l'affichage dans le popup
+  shortAddress?: string;
   coordinates: {
     latitude: number;
     longitude: number;
@@ -46,12 +78,33 @@ export interface Intervention {
   acceptedAt?: string;
   completedAt?: string;
   technicianId?: string;
+  technicianName?: string;
+  specialtyId: string;
+  specialtyLabel: string; // "Électricité"
+  specialtyValue: string; // "electricity"
+  addressId: string;
+  addressDetails: {
+    housenumber?: string;
+    street?: string;
+    city: string;
+    postcode: string;
+    citycode: string;
+    context?: string;
+    country?: string;
+    state?: string;
+    type?: string;
+    label: string; // "123 Rue Sully 69006 Lyon"
+    name?: string; // "123 Rue Sully"
+    additional_info?: string;
+  };
+  cancellationReason?: string;
   materials?: Material[];
   photos?: Photo[];
   notes?: string;
   totalAmount?: number;
   paymentStatus?: 'PENDING' | 'PAID' | 'FAILED';
   paymentLink?: string;
+  invoice?: Invoice;
 }
 
 export interface InterventionsState {
@@ -60,4 +113,11 @@ export interface InterventionsState {
   completedInterventions: Intervention[];
   isLoading: boolean;
   error: string | null;
+}
+
+export interface InvoiceFormData {
+  amount_ht: string;
+  vat_rate: string;
+  description: string[];
+  payment_terms: string;
 }

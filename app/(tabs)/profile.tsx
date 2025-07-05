@@ -33,6 +33,7 @@ export default function ProfileScreen() {
   };
   
   const handleLogout = () => {
+   logout();
     Alert.alert(
       t.logoutTitle,
       t.logoutMessage,

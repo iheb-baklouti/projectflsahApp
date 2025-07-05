@@ -151,9 +151,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       phone: apiUser.phone,
       role: apiUser.role,
       is_approved: apiUser.technician?.is_approved,
-      skills: apiUser.technician?.sectors?.map(s => s.name) || [],
-      zones: apiUser.technician?.zones?.map(z => z.name) || [],
-      technician: apiUser.technician,
+      specialties: apiUser.specialties?.label || [],
+      zones: apiUser.zones?.code || [],
     };
   };
 
@@ -162,19 +161,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
     console.log(apiAvailable);
     try {
-      if (!apiAvailable) {
+      if (apiAvailable) {
         // Tentative de connexion via API avec récupération du token Bearer
         try {
           const response = await ApiService.login({ email, password });
           console.log(response);
           if (response.success && response.data) {
             const { token: authToken, user: userData } = response.data;
-            
+            console.log(authToken);
             // Récupérer le profil complet avec le token Bearer
             const profileResponse = await ApiService.getCurrentUser(authToken);
+            console.log(profileResponse);
             if (profileResponse.success && profileResponse.data) {
               const fullUser = transformApiUserToLocal(profileResponse.data);
-              
+              console.log('fullUser', fullUser);
               await secureStorage.setItem('auth_token', authToken);
               await secureStorage.setItem('user', JSON.stringify(fullUser));
               
@@ -402,7 +402,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       // Déconnexion via API si disponible avec token Bearer
-      if (apiAvailable && token) {
+      if (token) {
         try {
           await ApiService.logout(token);
         } catch (error) {

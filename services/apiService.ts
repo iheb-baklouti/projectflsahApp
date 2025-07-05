@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 
 // Configuration de l'API
 const API_CONFIG = {
-  baseUrl: process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000' || 'https://api.flash-app.com',
+  baseUrl: process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:8000',
   timeout: 10000,
 };
 
@@ -18,26 +18,42 @@ export interface TechnicianRegistrationData {
   name: string;
   email: string;
   password: string;
+  password_confirmation: string;
   phone: string;
-  sectors: string[];
+  specialties: number[];
   zones: string[];
-  address: string;
-  zone_manager_email?: string;
   license_number?: string;
-  insurance_number?: string;
-  insurance_expiry?: string;
+  supervisor_email?: string;
+  note?: string;
+}
+
+export interface SpecialtyOption {
+  value: string;
+  label: string;
+  id?: number;
+}
+
+export interface ZoneSearchResult {
+  id: number;
+  nom: string;
+  code: string;
+  code_departement: string;
+  code_region: string;
+  codes_postaux: string[];
+  population: number;
+  siren: string;
+  code_epci: string;
+  created_at: string | null;
+  updated_at: string | null;
 }
 
 export interface TechnicianUpdateData {
   phone?: string;
-  skills?: string[];
+  specialties?: number[];
   zones?: string[];
   status?: string;
-  address_id?: number;
-  zone_manager_email?: string;
   license_number?: string;
-  insurance_number?: string;
-  insurance_expiry?: string;
+  supervisor_email?: string;
 }
 
 export interface TechnicianRegistrationResponse {
@@ -51,10 +67,8 @@ export interface TechnicianRegistrationResponse {
   status: string;
   is_approved: boolean;
   license_number?: string;
-  insurance_number?: string;
-  insurance_expiry?: string;
   zones: Array<{ id: number; name: string }>;
-  sectors: Array<{ id: number; name: string }>;
+  specialties: Array<{ id: number; name: string }>;
 }
 
 export interface LoginData {
@@ -80,15 +94,15 @@ export interface UserProfile {
   email: string;
   phone: string;
   role: string;
+  specialties?: { id: number; value: string, label: string };
+  zones?: { id: number; name: string, code: string };
   technician?: {
     id: number;
     status: string;
     is_approved: boolean;
     license_number?: string;
-    insurance_number?: string;
-    insurance_expiry?: string;
     zones: Array<{ id: number; name: string }>;
-    sectors: Array<{ id: number; name: string }>;
+    specialties: Array<{ id: number; name: string, code: string }>;
   };
 }
 
@@ -127,6 +141,8 @@ export interface InterventionData {
   cancellation_notes?: string;
   cancelled_at?: string;
   completed_at?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface InterventionsListResponse {
@@ -136,7 +152,22 @@ export interface InterventionsListResponse {
     current_page: number;
     total: number;
     per_page: number;
+    last_page: number;
+    from: number;
+    to: number;
   };
+}
+
+export interface InterventionFilters {
+  page?: number;
+  per_page?: number;
+  status?: string;
+  urgent?: boolean;
+  date_from?: string;
+  date_to?: string;
+  search?: string;
+  sort_by?: 'created_at' | 'scheduled_at' | 'updated_at';
+  sort_order?: 'asc' | 'desc';
 }
 
 // Classe pour gérer les erreurs API
@@ -157,12 +188,11 @@ async function makeRequest<T>(
   options: RequestInit = {},
   token?: string
 ): Promise<ApiResponse<T>> {
-  const url = `http://127.0.0.1:8000/${endpoint}`;
+  const url = `${API_CONFIG.baseUrl}/${endpoint}`;
   
   const defaultHeaders = {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-    'Authorization': '',
   };
 
   // Ajouter le token Bearer si fourni
@@ -265,23 +295,32 @@ export class ApiService {
     }, token);
   }
 
+  // ==================== SPÉCIALITÉS ET ZONES ====================
+  
+  static async getSpecialties(): Promise<ApiResponse<SpecialtyOption[]>> {
+    return makeRequest<SpecialtyOption[]>('api/specialties/options', {
+      method: 'GET',
+    });
+  }
+
+  static async searchZones(query: string): Promise<ApiResponse<ZoneSearchResult[]>> {
+    const queryParams = new URLSearchParams({ q: query });
+    return makeRequest<ZoneSearchResult[]>(`api/zones/search?${queryParams.toString()}`, {
+      method: 'GET',
+    });
+  }
+
   // ==================== INTERVENTIONS ====================
   
   static async getInterventions(
     token: string,
-    params?: {
-      page?: number;
-      per_page?: number;
-      status?: string;
-      date_from?: string;
-      date_to?: string;
-    }
+    filters?: InterventionFilters
   ): Promise<ApiResponse<InterventionsListResponse>> {
     const queryParams = new URLSearchParams();
     
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
           queryParams.append(key, value.toString());
         }
       });
@@ -320,12 +359,27 @@ export class ApiService {
     }, token);
   }
 
+  // NOUVELLE MÉTHODE: Assigner une intervention à soi-même
+  static async assignInterventionToMe(
+    token: string,
+    interventionId: string
+  ): Promise<ApiResponse<{ message: string; data: InterventionData }>> {
+    return makeRequest<{ message: string; data: InterventionData }>(
+      `api/interventions/${interventionId}/assign-to-me`,
+      {
+        method: 'POST',
+      },
+      token
+    );
+  }
+
+  // Méthode existante modifiée pour utiliser la nouvelle API
   static async acceptIntervention(
     token: string,
     interventionId: string
   ): Promise<ApiResponse<{ message: string; data: InterventionData }>> {
-    // Accepter une intervention en changeant son statut
-    return this.updateIntervention(token, interventionId, { status: 'ASSIGNED' });
+    // Utiliser la nouvelle API assign-to-me au lieu de mettre à jour le statut
+    return this.assignInterventionToMe(token, interventionId);
   }
 
   static async cancelIntervention(
@@ -358,6 +412,47 @@ export class ApiService {
     }, token);
   }
 
+  // ==================== INTERVENTIONS SPÉCIALISÉES ====================
+  
+  // Récupérer les interventions terminées avec pagination
+  static async getCompletedInterventions(
+    token: string,
+    filters?: InterventionFilters
+  ): Promise<ApiResponse<InterventionsListResponse>> {
+    const completedFilters = {
+      ...filters,
+      status: 'completed,cancelled', // Statuts terminés
+    };
+    return this.getInterventions(token, completedFilters);
+  }
+
+  // Récupérer les interventions planifiées
+  static async getScheduledInterventions(
+    token: string,
+    filters?: InterventionFilters
+  ): Promise<ApiResponse<InterventionsListResponse>> {
+    const scheduledFilters = {
+      ...filters,
+      date_from: new Date().toISOString().split('T')[0], // À partir d'aujourd'hui
+      sort_by: 'scheduled_at' as const,
+      sort_order: 'asc' as const,
+    };
+    return this.getInterventions(token, scheduledFilters);
+  }
+
+  // Rechercher des interventions
+  static async searchInterventions(
+    token: string,
+    searchQuery: string,
+    filters?: Omit<InterventionFilters, 'search'>
+  ): Promise<ApiResponse<InterventionsListResponse>> {
+    const searchFilters = {
+      ...filters,
+      search: searchQuery,
+    };
+    return this.getInterventions(token, searchFilters);
+  }
+
   // ==================== UTILITAIRES ====================
   
   // Vérification de code (pour l'inscription)
@@ -369,20 +464,6 @@ export class ApiService {
       method: 'POST',
       body: JSON.stringify({ email, code }),
     });
-  }
-
-  // Récupération des zones disponibles
-  static async getZones(token?: string): Promise<ApiResponse<Array<{ id: number; name: string }>>> {
-    return makeRequest('api/zones', {
-      method: 'GET',
-    }, token);
-  }
-
-  // Récupération des secteurs/compétences disponibles
-  static async getSectors(token?: string): Promise<ApiResponse<Array<{ id: number; name: string }>>> {
-    return makeRequest('api/sectors', {
-      method: 'GET',
-    }, token);
   }
 
   // Mot de passe oublié
@@ -432,12 +513,22 @@ export class ApiService {
 
 // Fonction utilitaire pour vérifier si l'API est disponible
 export async function isApiAvailable(): Promise<boolean> {
-  if (Platform.OS === 'web' && window.location.hostname === 'localhost') {
-    // En développement local, on peut vouloir forcer le mode mock
-    return false;
-  }
+  /*if (Platform.OS === 'web' && window.location.hostname === 'localhost') {
+    // En développement local, tester la connectivité avec l'API locale
+    try {
+      const response = await fetch(`${API_CONFIG.baseUrl}/api/health`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }*/
   
-  return await ApiService.healthCheck();
+  return true;
 }
 
 // Export par défaut

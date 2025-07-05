@@ -54,18 +54,20 @@ export const translations = {
     history: 'History',
     calendar: 'Calendar',
     profile: 'Profile',
+    //invoices: 'Invoices',
     
     // Interventions
     interventions: 'Interventions',
     intervention: 'Intervention',
     newInterventions: 'New',
     acceptedInterventions: 'Accepted',
+    assignedInterventions: 'Assigned',
     enRouteInterventions: 'En Route',
     onSiteInterventions: 'On Site',
     completedInterventions: 'Completed',
+    doneInterventions: 'Done',
     cancelledInterventions: 'Cancelled',
     allInterventions: 'All',
-    needsReturnInterventions: 'Need to Return',
     noInterventions: 'No interventions available',
     noInterventionsDescription: 'New interventions will appear here',
     noScheduledInterventions: 'No scheduled interventions',
@@ -90,6 +92,26 @@ export const translations = {
     getDirections: 'Get Directions',
     callClient: 'Call Client',
     searchInterventions: 'Search interventions...',
+    completeAndCreateInvoice: 'Complete & Create Invoice',
+    
+    // Invoices
+    createInvoice: 'Create Invoice',
+    invoiceCreated: 'Invoice Created',
+    downloadInvoice: 'Download Invoice',
+    amountHT: 'Amount (excl. VAT)',
+    vatRate: 'VAT Rate (%)',
+    paymentTerms: 'Payment Terms',
+    invoiceDescription: 'Description',
+    addDescriptionItem: 'Add description item',
+    createAndDownload: 'Create & Download Invoice',
+    invoiceNumber: 'Invoice Number',
+    issueDate: 'Issue Date',
+    dueDate: 'Due Date',
+    amountTTC: 'Amount (incl. VAT)',
+    invoiceStatus: 'Status',
+    pending: 'Pending',
+    paid: 'Paid',
+    late: 'Late',
     
     // Profile
     accountSettings: 'Account Settings',
@@ -129,14 +151,15 @@ export const translations = {
     selectSkills: 'Select Skills',
     addSkill: 'Add Skill',
     
-    // Statuses
+    // Statuses - Mis à jour selon votre backend
     NEW: 'New',
     ACCEPTED: 'Accepted',
+    ASSIGNED: 'Assigned',
     EN_ROUTE: 'En Route',
     ON_SITE: 'On Site',
-    DONE: 'Completed',
-    JE_DOIS_REPASSER: 'Need to Return',
-    ANNULÉE: 'Cancelled',
+    DONE: 'Done',
+    COMPLETED: 'Completed',
+    CANCELLED: 'Cancelled',
     
     // Forgot Password
     forgotPasswordTitle: 'Forgot Password?',
@@ -160,6 +183,9 @@ export const translations = {
     // Notifications
     newInterventionAvailable: 'New Intervention Available',
     newInterventionNotification: 'A new intervention is available in your area',
+    testNotification: 'Test Notification',
+    autoTest: 'Auto Test (10s)',
+    testsSent: 'Tests sent',
   },
   
   fr: {
@@ -217,18 +243,20 @@ export const translations = {
     history: 'Historique',
     calendar: 'Calendrier',
     profile: 'Profil',
+    //invoices: 'Factures',
     
     // Interventions
     interventions: 'Interventions',
     intervention: 'Intervention',
     newInterventions: 'Nouvelle',
     acceptedInterventions: 'Acceptée',
+    assignedInterventions: 'Assignée',
     enRouteInterventions: 'En Route',
     onSiteInterventions: 'Sur Site',
     completedInterventions: 'Terminée',
+    doneInterventions: 'Finie',
     cancelledInterventions: 'Annulée',
     allInterventions: 'Toutes',
-    needsReturnInterventions: 'À Repasser',
     noInterventions: 'Aucune intervention disponible',
     noInterventionsDescription: 'Les nouvelles interventions apparaîtront ici',
     noScheduledInterventions: 'Aucune intervention planifiée',
@@ -253,6 +281,26 @@ export const translations = {
     getDirections: 'Obtenir l\'Itinéraire',
     callClient: 'Appeler le Client',
     searchInterventions: 'Rechercher des interventions...',
+    completeAndCreateInvoice: 'Terminer et Créer Facture',
+    
+    // Invoices
+    createInvoice: 'Créer une Facture',
+    invoiceCreated: 'Facture Créée',
+    downloadInvoice: 'Télécharger la Facture',
+    amountHT: 'Montant HT',
+    vatRate: 'Taux TVA (%)',
+    paymentTerms: 'Conditions de Paiement',
+    invoiceDescription: 'Description',
+    addDescriptionItem: 'Ajouter un élément',
+    createAndDownload: 'Créer et Télécharger',
+    invoiceNumber: 'Numéro de Facture',
+    issueDate: 'Date d\'Émission',
+    dueDate: 'Date d\'Échéance',
+    amountTTC: 'Montant TTC',
+    invoiceStatus: 'Statut',
+    pending: 'En attente',
+    paid: 'Payée',
+    late: 'En retard',
     
     // Profile
     accountSettings: 'Paramètres du Compte',
@@ -292,14 +340,15 @@ export const translations = {
     selectSkills: 'Sélectionner les Compétences',
     addSkill: 'Ajouter une Compétence',
     
-    // Statuses
+    // Statuses - Mis à jour selon votre backend
     NEW: 'Nouvelle',
     ACCEPTED: 'Acceptée',
+    ASSIGNED: 'Assignée',
     EN_ROUTE: 'En Route',
     ON_SITE: 'Sur Site',
-    DONE: 'Terminée',
-    JE_DOIS_REPASSER: 'À Repasser',
-    ANNULÉE: 'Annulée',
+    DONE: 'Finie',
+    COMPLETED: 'Terminée',
+    CANCELLED: 'Annulée',
     
     // Forgot Password
     forgotPasswordTitle: 'Mot de passe oublié ?',
@@ -323,5 +372,8 @@ export const translations = {
     // Notifications
     newInterventionAvailable: 'Nouvelle Intervention Disponible',
     newInterventionNotification: 'Une nouvelle intervention est disponible dans votre zone',
+    testNotification: 'Tester une notification',
+    autoTest: 'Test automatique (10s)',
+    testsSent: 'Tests envoyés',
   }
 };

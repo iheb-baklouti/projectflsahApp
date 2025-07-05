@@ -4,7 +4,7 @@ import { useLanguage } from '@/hooks/useLanguage';
 import { translations } from '@/constants/Translations';
 import { STATUS_COLORS } from '@/constants/Colors';
 
-type FilterOption = 'all' | 'NEW' | 'ACCEPTED' | 'EN_ROUTE' | 'ON_SITE' | 'DONE' | 'JE_DOIS_REPASSER' | 'ANNULÉE';
+type FilterOption = 'all' | 'NEW' | 'ACCEPTED' | 'ASSIGNED' | 'EN_ROUTE' | 'ON_SITE' | 'DONE' | 'COMPLETED' | 'CANCELLED';
 
 interface InterventionFilterProps {
   selectedFilter: string;
@@ -22,11 +22,12 @@ export const InterventionFilter: React.FC<InterventionFilterProps> = ({
     { id: 'all', label: t.allInterventions, color: '#0055FF' },
     { id: 'NEW', label: t.newInterventions, color: STATUS_COLORS.NEW },
     { id: 'ACCEPTED', label: t.acceptedInterventions, color: STATUS_COLORS.ACCEPTED },
+    { id: 'ASSIGNED', label: t.assignedInterventions, color: STATUS_COLORS.ASSIGNED },
     { id: 'EN_ROUTE', label: t.enRouteInterventions, color: STATUS_COLORS.EN_ROUTE },
     { id: 'ON_SITE', label: t.onSiteInterventions, color: STATUS_COLORS.ON_SITE },
-    { id: 'DONE', label: t.completedInterventions, color: STATUS_COLORS.DONE },
-    { id: 'JE_DOIS_REPASSER', label: t.needsReturnInterventions, color: STATUS_COLORS.JE_DOIS_REPASSER },
-    { id: 'ANNULÉE', label: t.cancelledInterventions, color: STATUS_COLORS.ANNULÉE },
+    { id: 'DONE', label: t.doneInterventions, color: STATUS_COLORS.DONE },
+    { id: 'COMPLETED', label: t.completedInterventions, color: STATUS_COLORS.COMPLETED },
+    { id: 'CANCELLED', label: t.cancelledInterventions, color: STATUS_COLORS.CANCELLED },
   ];
   
   return (

@@ -9,14 +9,19 @@ import { COLORS, DARK_COLORS } from '@/constants/Colors';
 import { InterventionCard } from '@/components/interventions/InterventionCard';
 import { InterventionFilter } from '@/components/interventions/InterventionFilter';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import * as Notifications from 'expo-notifications';
 import { Audio } from 'expo-av';
 import { Intervention } from '@/types/intervention';
 import { NewInterventionPopup } from '@/components/interventions/NewInterventionPopup';
+import { FCMNotificationPopup } from '@/components/notifications/FCMNotificationPopup';
 import { Ionicons } from '@expo/vector-icons';
 import { NotificationContext } from '@/contexts/NotificationContext';
+import { useFCM } from '@/contexts/FCMContext';
+import { RefreshCw } from 'lucide-react-native';
 
 // Configuration des notifications
 Notifications.setNotificationHandler({
@@ -44,12 +49,22 @@ export default function FeedScreen() {
     enableVibration
   } = useContext(NotificationContext);
 
+  // FCM Context
+  const {
+    isInitialized: fcmInitialized,
+    fcmToken,
+    currentNotification: fcmNotification,
+    dismissCurrentNotification,
+    testFCMNotification,
+  } = useFCM();
+
   const {
     interventions,
     isLoading,
     error,
     refreshInterventions,
-    takeIntervention
+    takeIntervention,
+    apiAvailable
   } = useInterventions();
 
   const [refreshing, setRefreshing] = useState(false);
@@ -58,6 +73,7 @@ export default function FeedScreen() {
   const [popupIntervention, setPopupIntervention] = useState<Intervention | null>(null);
   const [autoTestEnabled, setAutoTestEnabled] = useState(false);
   const [testCounter, setTestCounter] = useState(0);
+  const [apiStatus, setApiStatus] = useState<'loading' | 'connecting' | 'retrying' | 'timeout'>('loading');
   
   const previousNotificationCount = useRef(0);
   const autoTestInterval = useRef<NodeJS.Timeout | null>(null);
@@ -84,6 +100,46 @@ export default function FeedScreen() {
       }
     };
   }, []);
+
+  // ✅ NOUVEAU: Recharger automatiquement quand on revient sur cette page
+  useFocusEffect(
+    useCallback(() => {
+      console.log('📱 Feed screen focused - Rechargement des interventions...');
+      refreshInterventions();
+    }, [refreshInterventions])
+  );
+
+  // Mettre à jour le statut API en fonction de l'état de chargement
+  useEffect(() => {
+    if (isLoading) {
+      if (apiAvailable) {
+        setApiStatus('connecting');
+        
+        // Après 3 secondes, passer à "retrying" si toujours en chargement
+        const timeoutId = setTimeout(() => {
+          if (isLoading) {
+            setApiStatus('retrying');
+          }
+        }, 3000);
+        
+        // Après 7 secondes, passer à "timeout" si toujours en chargement
+        const timeoutId2 = setTimeout(() => {
+          if (isLoading) {
+            setApiStatus('timeout');
+          }
+        }, 7000);
+        
+        return () => {
+          clearTimeout(timeoutId);
+          clearTimeout(timeoutId2);
+        };
+      } else {
+        setApiStatus('loading');
+      }
+    } else {
+      setApiStatus('loading');
+    }
+  }, [isLoading, apiAvailable]);
 
   const playNotificationSound = async () => {
     try {
@@ -136,6 +192,18 @@ export default function FeedScreen() {
         longitude: 2.3522 + (Math.random() - 0.5) * 0.1
       },
       clientPhone: "+33123456789",
+      clientEmail: "test@example.com",
+      number: `TEST-${counter}`,
+      specialtyId: '1',
+      specialtyLabel: 'Test',
+      specialtyValue: 'test',
+      addressId: '1',
+      addressDetails: {
+        city: 'Paris',
+        postcode: '75001',
+        citycode: '75101',
+        label: testData.address,
+      },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -194,6 +262,7 @@ export default function FeedScreen() {
     registerForPushNotifications();
   }, []);
 
+  // ✅ Filtrer les interventions selon le filtre sélectionné
   useEffect(() => {
     if (selectedFilter === 'all') {
       setFilteredInterventions(interventions);
@@ -217,12 +286,24 @@ export default function FeedScreen() {
           shortAddress: latest.data?.address || 'Zone non spécifiée',
           clientName: 'Client Notification',
           clientPhone: '+33123456789',
+          clientEmail: 'client@example.com',
           serviceType: 'Notification',
           status: 'NEW',
           isUrgent: true,
           coordinates: {
             latitude: 48.8566,
             longitude: 2.3522
+          },
+          number: `NOTIF-${Date.now()}`,
+          specialtyId: '1',
+          specialtyLabel: 'Notification',
+          specialtyValue: 'notification',
+          addressId: '1',
+          addressDetails: {
+            city: 'Paris',
+            postcode: '75001',
+            citycode: '75101',
+            label: latest.data?.address || 'Adresse non spécifiée',
           },
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
@@ -241,8 +322,14 @@ export default function FeedScreen() {
     setRefreshing(false);
   }, [refreshInterventions]);
 
+  // ✅ NOUVEAU: Fonction pour refresh manuel avec bouton
+  const handleManualRefresh = useCallback(async () => {
+    console.log('🔄 Refresh manuel déclenché');
+    await refreshInterventions();
+  }, [refreshInterventions]);
+
   const handleTakeIntervention = async (id: string) => {
-    if (id.startsWith('test_')) {
+    if (id.startsWith('test_') || id.startsWith('NOTIF-')) {
       // Pour les interventions de test, juste fermer le popup
       setPopupIntervention(null);
       return;
@@ -250,6 +337,17 @@ export default function FeedScreen() {
     
     await takeIntervention(id);
     setPopupIntervention(null);
+    // Recharger automatiquement après avoir pris une intervention
+    await refreshInterventions();
+  };
+
+  // Gérer l'acceptation d'une notification FCM
+  const handleAcceptFCMNotification = async () => {
+    if (fcmNotification?.data.interventionId) {
+      // Si c'est une vraie intervention, l'accepter
+      await handleTakeIntervention(fcmNotification.data.interventionId);
+    }
+    dismissCurrentNotification();
   };
 
   const renderItem = ({ item }: { item: Intervention }) => (
@@ -287,6 +385,16 @@ export default function FeedScreen() {
       fontSize: 22, 
       fontWeight: 'bold',
       color: colors.text,
+    },
+    headerActions: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
+    refreshButton: {
+      padding: 8,
+      borderRadius: 8,
+      backgroundColor: colors.primary + '20',
     },
     bellIcon: { 
       position: 'relative' 
@@ -334,6 +442,30 @@ export default function FeedScreen() {
     testBtnText: { 
       color: colors.buttonText, 
       fontWeight: 'bold' 
+    },
+    fcmTestBtn: { 
+      padding: 12, 
+      borderRadius: 8, 
+      backgroundColor: '#34C759', 
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    fcmTestBtnText: { 
+      color: '#fff', 
+      fontWeight: 'bold' 
+    },
+    fcmStatus: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 12,
+      padding: 8,
+      backgroundColor: fcmInitialized ? '#E8F5E8' : '#FFF3CD',
+      borderRadius: 8,
+    },
+    fcmStatusText: {
+      fontSize: 14,
+      color: fcmInitialized ? '#155724' : '#856404',
+      marginLeft: 8,
     },
     autoTestRow: {
       flexDirection: 'row',
@@ -389,18 +521,48 @@ export default function FeedScreen() {
     <SafeAreaView style={dynamicStyles.container} edges={['top']}>
       <View style={dynamicStyles.headerRow}>
         <Text style={dynamicStyles.headerTitle}>{t.interventions}</Text>
-        <TouchableOpacity onPress={() => router.push('/notifications/NotificationCenter')} style={dynamicStyles.bellIcon}>
-          <Ionicons name="notifications-outline" size={24} color={colors.text} />
-          {unreadCount > 0 && (
-            <View style={dynamicStyles.badge}>
-              <Text style={dynamicStyles.badgeText}>{unreadCount}</Text>
-            </View>
-          )}
-        </TouchableOpacity>
+        <View style={dynamicStyles.headerActions}>
+          {/* ✅ NOUVEAU: Bouton de refresh manuel */}
+          <TouchableOpacity 
+            onPress={handleManualRefresh} 
+            style={dynamicStyles.refreshButton}
+            disabled={isLoading}
+          >
+            <RefreshCw 
+              size={20} 
+              color={colors.primary} 
+              style={{ 
+                transform: [{ rotate: isLoading ? '180deg' : '0deg' }] 
+              }} 
+            />
+          </TouchableOpacity>
+          
+          <TouchableOpacity onPress={() => router.push('/notifications/NotificationCenter')} style={dynamicStyles.bellIcon}>
+            <Ionicons name="notifications-outline" size={24} color={colors.text} />
+            {unreadCount > 0 && (
+              <View style={dynamicStyles.badge}>
+                <Text style={dynamicStyles.badgeText}>{unreadCount}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
 
-      {/* Zone de test */}
+      {/* Zone de test avec FCM */}
       <View style={dynamicStyles.testSection}>
+        {/* Statut FCM */}
+        <View style={dynamicStyles.fcmStatus}>
+          <Text style={dynamicStyles.fcmStatusText}>
+            {fcmInitialized ? '🟢 FCM Connecté' : '🟡 FCM en cours...'}
+          </Text>
+        </View>
+
+        {/* Test FCM */}
+        <TouchableOpacity onPress={testFCMNotification} style={dynamicStyles.fcmTestBtn}>
+          <Text style={dynamicStyles.fcmTestBtnText}>🔥 Tester FCM Push</Text>
+        </TouchableOpacity>
+
+        {/* Test local */}
         <TouchableOpacity onPress={() => triggerTestNotification(false)} style={dynamicStyles.testBtn}>
           <Text style={dynamicStyles.testBtnText}>📢 {t.testNotification || 'Tester une notification'}</Text>
         </TouchableOpacity>
@@ -418,14 +580,29 @@ export default function FeedScreen() {
         {autoTestEnabled && (
           <Text style={dynamicStyles.testCounter}>{t.testsSent || 'Tests envoyés'}: {testCounter}</Text>
         )}
+
+        {fcmToken && (
+          <Text style={[dynamicStyles.testCounter, { fontSize: 10 }]}>
+            Token: {fcmToken.substring(0, 20)}...
+          </Text>
+        )}
       </View>
 
-      {/* Popup de nouvelle intervention */}
+      {/* Popup de nouvelle intervention (local) */}
       {popupIntervention && (
         <NewInterventionPopup
           intervention={popupIntervention}
           onTake={() => handleTakeIntervention(popupIntervention.id)}
           onDismiss={() => setPopupIntervention(null)}
+        />
+      )}
+
+      {/* Popup de notification FCM */}
+      {fcmNotification && (
+        <FCMNotificationPopup
+          notification={fcmNotification}
+          onAccept={handleAcceptFCMNotification}
+          onDismiss={dismissCurrentNotification}
         />
       )}
 
@@ -435,9 +612,16 @@ export default function FeedScreen() {
       />
 
       {isLoading && !refreshing ? (
-        <View style={dynamicStyles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-        </View>
+        <LoadingSpinner 
+          fullScreen 
+          apiStatus={apiStatus}
+          message={
+            apiStatus === 'connecting' ? 'Connexion à l\'API...' :
+            apiStatus === 'retrying' ? 'Nouvelle tentative...' :
+            apiStatus === 'timeout' ? 'Chargement des données locales...' :
+            'Chargement...'
+          }
+        />
       ) : error ? (
         <View style={dynamicStyles.errorContainer}>
           <Text style={dynamicStyles.errorText}>{error}</Text>

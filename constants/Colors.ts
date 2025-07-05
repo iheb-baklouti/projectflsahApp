@@ -7,10 +7,11 @@ export const COLORS = {
   // Status colors
   new: '#FFD700', // Yellow
   accepted: '#FF9500', // Orange
-  enRoute: '#AF52DE', // Purple
-  onSite: '#64D2FF', // Light Blue
+  assigned: '#AF52DE', // Purple
+  enRoute: '#64D2FF', // Light Blue
+  onSite: '#007AFF', // Blue
   done: '#34C759', // Green
-  needsReturn: '#FF9500', // Amber
+  completed: '#34C759', // Green
   cancelled: '#FF3B30', // Red
   
   // Text colors - Design précédent
@@ -45,10 +46,11 @@ export const DARK_COLORS = {
   // Status colors (same as light mode)
   new: '#FFD700',
   accepted: '#FF9500',
-  enRoute: '#AF52DE',
-  onSite: '#64D2FF',
+  assigned: '#AF52DE',
+  enRoute: '#64D2FF',
+  onSite: '#007AFF',
   done: '#34C759',
-  needsReturn: '#FF9500',
+  completed: '#34C759',
   cancelled: '#FF3B30',
   
   // Text colors - Amélioration pour dark mode
@@ -77,19 +79,21 @@ export const DARK_COLORS = {
 export const STATUS_COLORS = {
   NEW: COLORS.new,
   ACCEPTED: COLORS.accepted,
+  ASSIGNED: COLORS.assigned,
   EN_ROUTE: COLORS.enRoute,
   ON_SITE: COLORS.onSite,
   DONE: COLORS.done,
-  JE_DOIS_REPASSER: COLORS.needsReturn,
-  ANNULÉE: COLORS.cancelled,
+  COMPLETED: COLORS.completed,
+  CANCELLED: COLORS.cancelled,
 };
 
 export const STATUS_BG_COLORS = {
   NEW: 'rgba(255, 215, 0, 0.1)',
   ACCEPTED: 'rgba(255, 149, 0, 0.1)',
-  EN_ROUTE: 'rgba(175, 82, 222, 0.1)',
-  ON_SITE: 'rgba(100, 210, 255, 0.1)',
+  ASSIGNED: 'rgba(175, 82, 222, 0.1)',
+  EN_ROUTE: 'rgba(100, 210, 255, 0.1)',
+  ON_SITE: 'rgba(0, 122, 255, 0.1)',
   DONE: 'rgba(52, 199, 89, 0.1)',
-  JE_DOIS_REPASSER: 'rgba(255, 149, 0, 0.1)',
-  ANNULÉE: 'rgba(255, 59, 48, 0.1)',
+  COMPLETED: 'rgba(52, 199, 89, 0.1)',
+  CANCELLED: 'rgba(255, 59, 48, 0.1)',
 };

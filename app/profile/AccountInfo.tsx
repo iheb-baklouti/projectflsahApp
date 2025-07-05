@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert, Modal, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert, Modal, FlatList, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { HeaderBar } from '@/components/ui/HeaderBar';
 import { useLanguage } from '@/hooks/useLanguage';
@@ -7,7 +7,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTheme } from '@/hooks/useTheme';
 import { translations } from '@/constants/Translations';
 import { COLORS, DARK_COLORS } from '@/constants/Colors';
-import { User, Lock, Mail, Phone, MapPin, CreditCard as Edit3, Save, Eye, EyeOff, Plus, X } from 'lucide-react-native';
+import { User, Lock, Mail, Phone, MapPin, CreditCard as Edit3, Save, Eye, EyeOff, Plus, X, Search, Star, Users, Building2, CircleCheck as CheckCircle } from 'lucide-react-native';
+import ApiService, { isApiAvailable, SpecialtyOption, ZoneSearchResult } from '@/services/apiService';
 
 const availableSkills = [
   'Plombier', 'Électricien', 'Serrurier', 'Chauffagiste', 'Peintre', 'Menuisier',
@@ -27,19 +28,18 @@ export default function AccountInfoScreen() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [showSkillsModal, setShowSkillsModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [apiAvailable, setApiAvailable] = useState(false);
   
   const colors = theme === 'dark' ? DARK_COLORS : COLORS;
   
-  // Form states
+  // Form states - Suppression du code postal, zones à la place de ville
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
     phone: user?.phone || '',
-    ville: user?.ville || '',
-    codePostal: user?.codePostal || '',
     skills: user?.skills || [],
+    zones: user?.zones || [],
   });
   
   const [passwordData, setPasswordData] = useState({
@@ -48,19 +48,132 @@ export default function AccountInfoScreen() {
     confirmPassword: '',
   });
 
+  // États pour les données API
+  const [availableSpecialties, setAvailableSpecialties] = useState<SpecialtyOption[]>([]);
+  const [zoneSearchResults, setZoneSearchResults] = useState<ZoneSearchResult[]>([]);
+  const [searchingZones, setSearchingZones] = useState(false);
+  const [zoneQuery, setZoneQuery] = useState('');
+  const [selectedZones, setSelectedZones] = useState<ZoneSearchResult[]>([]);
+  const [selectedSpecialties, setSelectedSpecialties] = useState<SpecialtyOption[]>([]);
+
+  // Vérifier la disponibilité de l'API au chargement
+  useEffect(() => {
+    const checkApiAvailability = async () => {
+      const available = await isApiAvailable();
+      setApiAvailable(available);
+      
+      if (available) {
+        loadSpecialties();
+      }
+    };
+    
+    checkApiAvailability();
+  }, []);
+
+  // Charger les spécialités depuis l'API
+  const loadSpecialties = async () => {
+    try {
+      const response = await ApiService.getSpecialties();
+      if (response.success && response.data) {
+        const specialtiesWithIds = response.data.map((specialty, index) => ({
+          ...specialty,
+          id: index + 1
+        }));
+        setAvailableSpecialties(specialtiesWithIds);
+        
+        // Mapper les compétences actuelles de l'utilisateur
+        const userSpecialties = specialtiesWithIds.filter(s => 
+          user?.skills?.includes(s.label)
+        );
+        setSelectedSpecialties(userSpecialties);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement des spécialités:', error);
+      // Fallback avec des spécialités par défaut
+      const defaultSpecialties = availableSkills.map((skill, index) => ({
+        id: index + 1,
+        value: skill.toLowerCase().replace(/\s+/g, '_'),
+        label: skill
+      }));
+      setAvailableSpecialties(defaultSpecialties);
+      
+      const userSpecialties = defaultSpecialties.filter(s => 
+        user?.skills?.includes(s.label)
+      );
+      setSelectedSpecialties(userSpecialties);
+    }
+  };
+
+  // Recherche de zones avec debounce
+  useEffect(() => {
+    if (zoneQuery.length >= 2 && apiAvailable) {
+      const timeoutId = setTimeout(() => {
+        searchZones(zoneQuery);
+      }, 500);
+      
+      return () => clearTimeout(timeoutId);
+    } else {
+      setZoneSearchResults([]);
+    }
+  }, [zoneQuery, apiAvailable]);
+
+  const searchZones = async (query: string) => {
+    if (!apiAvailable) return;
+    
+    setSearchingZones(true);
+    try {
+      const response = await ApiService.searchZones(query);
+      if (response.success && response.data) {
+        setZoneSearchResults(response.data);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la recherche de zones:', error);
+    } finally {
+      setSearchingZones(false);
+    }
+  };
+
+  const selectZone = (zone: ZoneSearchResult) => {
+    if (!selectedZones.find(z => z.id === zone.id)) {
+      setSelectedZones(prev => [...prev, zone]);
+    }
+    setZoneQuery('');
+    setZoneSearchResults([]);
+  };
+
+  const removeZone = (zoneId: number) => {
+    setSelectedZones(prev => prev.filter(z => z.id !== zoneId));
+  };
+
+  const toggleSpecialty = (specialty: SpecialtyOption) => {
+    setSelectedSpecialties(prev => {
+      const exists = prev.find(s => s.id === specialty.id);
+      if (exists) {
+        return prev.filter(s => s.id !== specialty.id);
+      } else {
+        return [...prev, specialty];
+      }
+    });
+  };
+
+  const removeSpecialty = (specialtyId: number) => {
+    setSelectedSpecialties(prev => prev.filter(s => s.id !== specialtyId));
+  };
+
   const handleSaveInfo = async () => {
     if (!user) return;
 
     setIsLoading(true);
     try {
-      await updateProfile({
+      const updatedData = {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        ville: formData.ville,
-        codePostal: formData.codePostal,
-        skills: formData.skills,
-      });
+        skills: selectedSpecialties.map(s => s.label),
+        zones: selectedZones.map(z => z.nom),
+      };
+
+      await updateProfile(updatedData);
 
       Alert.alert(
         t.informationUpdated,
@@ -101,20 +214,31 @@ export default function AccountInfoScreen() {
     );
   };
 
-  const toggleSkill = (skill: string) => {
-    setFormData(prev => ({
-      ...prev,
-      skills: prev.skills.includes(skill)
-        ? prev.skills.filter(s => s !== skill)
-        : [...prev.skills, skill]
-    }));
-  };
-
-  const removeSkill = (skill: string) => {
-    setFormData(prev => ({
-      ...prev,
-      skills: prev.skills.filter(s => s !== skill)
-    }));
+  // Fonction pour obtenir l'emoji correspondant à chaque spécialité
+  const getSpecialtyEmoji = (value: string) => {
+    const emojiMap: Record<string, string> = {
+      'plombier': '🔧',
+      'électricien': '⚡',
+      'serrurier': '🔐',
+      'chauffagiste': '❄️',
+      'peintre': '🎨',
+      'menuisier': '🪚',
+      'vitrier': '🪟',
+      'carreleur': '🧱',
+      'technicien_alarme': '🚨',
+      'technicien_clim': '❄️',
+      'mécanicien': '🔧',
+      'fibre_optique': '🌐',
+      'maçon': '🧱',
+      'couvreur': '🏠',
+      'jardinier': '🌱',
+      'nettoyage': '🧽',
+      'déménagement': '📦',
+      'réparation_tv': '📺',
+      'installation_satellite': '📡',
+      'dépannage_informatique': '💻',
+    };
+    return emojiMap[value.toLowerCase().replace(/\s+/g, '_')] || '🔨';
   };
 
   const dynamicStyles = StyleSheet.create({
@@ -203,47 +327,225 @@ export default function AccountInfoScreen() {
       fontSize: 16,
       fontWeight: 'bold',
     },
-    skillsContainer: {
+    
+    // Styles pour les sections modernes
+    modernSectionContainer: {
+      marginBottom: 24,
+    },
+    modernSectionHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 16,
+      paddingBottom: 8,
+      borderBottomWidth: 2,
+      borderBottomColor: colors.primary,
+    },
+    modernSectionTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.text,
+      marginLeft: 8,
+    },
+    
+    // Styles pour les éléments sélectionnés
+    selectedContainer: {
+      backgroundColor: colors.primary + '20',
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 16,
+      borderWidth: 1,
+      borderColor: colors.primary,
+    },
+    selectedLabel: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.text,
+      marginBottom: 12,
+    },
+    selectedChips: {
       flexDirection: 'row',
       flexWrap: 'wrap',
       gap: 8,
     },
-    skillBadge: {
-      backgroundColor: `${colors.primary}20`,
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 16,
-      borderWidth: 1,
-      borderColor: colors.primary,
+    selectedChip: {
       flexDirection: 'row',
       alignItems: 'center',
+      backgroundColor: colors.primary,
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 20,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 2,
     },
-    skillText: {
-      color: colors.primary,
+    selectedChipText: {
+      color: colors.buttonText,
       fontSize: 14,
-      fontWeight: '500',
+      fontWeight: '600',
+      marginRight: 6,
     },
-    removeSkillButton: {
-      marginLeft: 8,
+    removeChipButton: {
       padding: 2,
     },
-    addSkillButton: {
-      backgroundColor: colors.border,
-      paddingHorizontal: 12,
-      paddingVertical: 6,
-      borderRadius: 16,
-      borderWidth: 1,
-      borderColor: colors.primary,
-      borderStyle: 'dashed',
+    
+    // Styles pour la recherche moderne
+    modernSearchContainer: {
       flexDirection: 'row',
       alignItems: 'center',
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 16,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 2,
     },
-    addSkillText: {
-      color: colors.primary,
-      fontSize: 14,
+    modernSearchInput: {
+      flex: 1,
+      fontSize: 16,
+      marginLeft: 12,
+      color: colors.text,
+    },
+    searchLoader: {
+      marginLeft: 8,
+    },
+    
+    // Styles pour les résultats de zones
+    modernResultsContainer: {
+      gap: 12,
+    },
+    modernZoneCard: {
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 16,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 2,
+    },
+    modernZoneCardSelected: {
+      borderColor: colors.primary,
+      backgroundColor: colors.primary + '10',
+    },
+    zoneCardHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    zoneCardIcon: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: colors.primary + '20',
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 12,
+    },
+    zoneCardIconSelected: {
+      backgroundColor: colors.primary,
+    },
+    zoneCardInfo: {
+      flex: 1,
+    },
+    zoneCardTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.text,
+      marginBottom: 2,
+    },
+    zoneCardTitleSelected: {
+      color: colors.text,
+    },
+    zoneCardSubtitle: {
+      fontSize: 13,
+      color: colors.textLight,
+    },
+    selectedBadge: {
+      marginLeft: 8,
+    },
+    zoneCardFooter: {
+      flexDirection: 'row',
+      justifyContent: 'flex-end',
+    },
+    populationBadge: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.border,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 12,
+      gap: 4,
+    },
+    populationText: {
+      fontSize: 12,
+      color: colors.textLight,
       fontWeight: '500',
-      marginLeft: 4,
     },
+    
+    // Styles pour la grille des spécialités
+    modernSpecialtiesGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 12,
+    },
+    modernSpecialtyCard: {
+      width: '47%',
+      backgroundColor: colors.card,
+      borderRadius: 12,
+      padding: 16,
+      alignItems: 'center',
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.05,
+      shadowRadius: 8,
+      elevation: 2,
+      position: 'relative',
+    },
+    modernSpecialtyCardSelected: {
+      borderColor: colors.primary,
+      backgroundColor: colors.primary + '10',
+    },
+    specialtyCardIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: colors.border,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    specialtyCardIconSelected: {
+      backgroundColor: colors.primary,
+    },
+    specialtyEmoji: {
+      fontSize: 24,
+    },
+    specialtyCardText: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: colors.text,
+      textAlign: 'center',
+    },
+    specialtyCardTextSelected: {
+      color: colors.text,
+    },
+    specialtySelectedBadge: {
+      position: 'absolute',
+      top: 8,
+      right: 8,
+    },
+    
     passwordButton: {
       backgroundColor: colors.border,
       paddingVertical: 12,
@@ -315,26 +617,6 @@ export default function AccountInfoScreen() {
       marginBottom: 16,
       textAlign: 'center',
     },
-    skillOption: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingVertical: 12,
-      paddingHorizontal: 16,
-      borderRadius: 8,
-      marginBottom: 8,
-      backgroundColor: colors.background,
-    },
-    skillOptionSelected: {
-      backgroundColor: colors.primary,
-    },
-    skillOptionText: {
-      fontSize: 16,
-      color: colors.text,
-    },
-    skillOptionTextSelected: {
-      color: colors.buttonText,
-      fontWeight: '600',
-    },
     closeModalButton: {
       backgroundColor: colors.text,
       paddingVertical: 12,
@@ -350,58 +632,31 @@ export default function AccountInfoScreen() {
     loadingButton: {
       opacity: 0.6,
     },
+    addButton: {
+      backgroundColor: colors.border,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: colors.primary,
+      borderStyle: 'dashed',
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    addButtonText: {
+      color: colors.primary,
+      fontSize: 14,
+      fontWeight: '500',
+      marginLeft: 4,
+    },
   });
-
-  const SkillsModal = () => (
-    <Modal
-      visible={showSkillsModal}
-      transparent
-      animationType="slide"
-      onRequestClose={() => setShowSkillsModal(false)}
-    >
-      <View style={dynamicStyles.modalOverlay}>
-        <View style={dynamicStyles.modalContent}>
-          <Text style={dynamicStyles.modalTitle}>{t.selectSkills}</Text>
-          
-          <FlatList
-            data={availableSkills}
-            keyExtractor={(item) => item}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={[
-                  dynamicStyles.skillOption,
-                  formData.skills.includes(item) && dynamicStyles.skillOptionSelected
-                ]}
-                onPress={() => toggleSkill(item)}
-              >
-                <Text style={[
-                  dynamicStyles.skillOptionText,
-                  formData.skills.includes(item) && dynamicStyles.skillOptionTextSelected
-                ]}>
-                  {item}
-                </Text>
-              </TouchableOpacity>
-            )}
-            showsVerticalScrollIndicator={false}
-          />
-
-          <TouchableOpacity
-            style={dynamicStyles.closeModalButton}
-            onPress={() => setShowSkillsModal(false)}
-          >
-            <Text style={dynamicStyles.closeModalButtonText}>{t.close}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
-  );
 
   return (
     <SafeAreaView style={dynamicStyles.container} edges={['top']}>
       <HeaderBar title={t.accountInfo} showBack />
       
       <ScrollView style={dynamicStyles.content} showsVerticalScrollIndicator={false}>
-        {/* Section Informations personnelles */}
+        {/* Section Informations personnelles avec zones et spécialités intégrées */}
         <View style={dynamicStyles.section}>
           <View style={dynamicStyles.sectionHeader}>
             <User size={24} color={colors.primary} />
@@ -464,33 +719,182 @@ export default function AccountInfoScreen() {
             </View>
           </View>
 
-          <View style={dynamicStyles.formGroup}>
-            <Text style={dynamicStyles.label}>{t.city}</Text>
-            <View style={dynamicStyles.inputWithIcon}>
-              <MapPin size={20} color={colors.textLight} style={dynamicStyles.inputIcon} />
-              <TextInput
-                style={[dynamicStyles.inputWithIconText, !isEditing && dynamicStyles.inputDisabled]}
-                value={formData.ville}
-                onChangeText={(text) => setFormData({...formData, ville: text})}
-                editable={isEditing}
-                placeholder={t.city}
-                placeholderTextColor={colors.textLight}
-              />
+          {/* Section Zones de travail intégrée */}
+          <View style={dynamicStyles.modernSectionContainer}>
+            <View style={dynamicStyles.modernSectionHeader}>
+              <MapPin size={20} color={colors.primary} />
+              <Text style={dynamicStyles.modernSectionTitle}>Zones de travail</Text>
             </View>
+            
+            {/* Zones sélectionnées */}
+            {selectedZones.length > 0 && (
+              <View style={dynamicStyles.selectedContainer}>
+                <Text style={dynamicStyles.selectedLabel}>
+                  {selectedZones.length} zone{selectedZones.length > 1 ? 's' : ''} sélectionnée{selectedZones.length > 1 ? 's' : ''}
+                </Text>
+                <View style={dynamicStyles.selectedChips}>
+                  {selectedZones.map((zone) => (
+                    <View key={zone.id} style={dynamicStyles.selectedChip}>
+                      <Text style={dynamicStyles.selectedChipText}>{zone.nom}</Text>
+                      {isEditing && (
+                        <TouchableOpacity
+                          style={dynamicStyles.removeChipButton}
+                          onPress={() => removeZone(zone.id)}
+                        >
+                          <X size={12} color={colors.buttonText} />
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {isEditing && (
+              <>
+                {/* Recherche de zones */}
+                <View style={dynamicStyles.modernSearchContainer}>
+                  <Search size={18} color={colors.textLight} />
+                  <TextInput
+                    style={dynamicStyles.modernSearchInput}
+                    placeholder="Rechercher des zones (Paris, Lyon, Marseille...)"
+                    value={zoneQuery}
+                    onChangeText={setZoneQuery}
+                    placeholderTextColor={colors.textLight}
+                  />
+                  {searchingZones && (
+                    <View style={dynamicStyles.searchLoader}>
+                      <ActivityIndicator size="small" color={colors.primary} />
+                    </View>
+                  )}
+                </View>
+
+                {/* Résultats de recherche de zones */}
+                {zoneSearchResults.length > 0 && (
+                  <View style={dynamicStyles.modernResultsContainer}>
+                    {zoneSearchResults.slice(0, 6).map((zone) => {
+                      const isSelected = selectedZones.find(z => z.id === zone.id);
+                      return (
+                        <TouchableOpacity
+                          key={zone.id}
+                          style={[
+                            dynamicStyles.modernZoneCard,
+                            isSelected && dynamicStyles.modernZoneCardSelected
+                          ]}
+                          onPress={() => selectZone(zone)}
+                          disabled={!!isSelected}
+                        >
+                          <View style={dynamicStyles.zoneCardHeader}>
+                            <View style={[
+                              dynamicStyles.zoneCardIcon,
+                              isSelected && dynamicStyles.zoneCardIconSelected
+                            ]}>
+                              <Building2 size={16} color={isSelected ? colors.buttonText : colors.primary} />
+                            </View>
+                            <View style={dynamicStyles.zoneCardInfo}>
+                              <Text style={[
+                                dynamicStyles.zoneCardTitle,
+                                isSelected && dynamicStyles.zoneCardTitleSelected
+                              ]}>
+                                {zone.nom}
+                              </Text>
+                              <Text style={dynamicStyles.zoneCardSubtitle}>
+                                {zone.codes_postaux.slice(0, 3).join(', ')}
+                                {zone.codes_postaux.length > 3 && '...'}
+                              </Text>
+                            </View>
+                            {isSelected && (
+                              <View style={dynamicStyles.selectedBadge}>
+                                <CheckCircle size={16} color={colors.primary} />
+                              </View>
+                            )}
+                          </View>
+                          <View style={dynamicStyles.zoneCardFooter}>
+                            <View style={dynamicStyles.populationBadge}>
+                              <Users size={12} color={colors.textLight} />
+                              <Text style={dynamicStyles.populationText}>
+                                {zone.population.toLocaleString()} hab.
+                              </Text>
+                            </View>
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                )}
+              </>
+            )}
           </View>
 
-          <View style={dynamicStyles.formGroup}>
-            <Text style={dynamicStyles.label}>{t.postalCode}</Text>
-            <TextInput
-              style={[dynamicStyles.input, !isEditing && dynamicStyles.inputDisabled]}
-              value={formData.codePostal}
-              onChangeText={(text) => setFormData({...formData, codePostal: text})}
-              editable={isEditing}
-              placeholder={t.postalCode}
-              placeholderTextColor={colors.textLight}
-              keyboardType="numeric"
-              maxLength={5}
-            />
+          {/* Section Spécialités intégrée */}
+          <View style={dynamicStyles.modernSectionContainer}>
+            <View style={dynamicStyles.modernSectionHeader}>
+              <Star size={20} color={colors.primary} />
+              <Text style={dynamicStyles.modernSectionTitle}>{t.skills}</Text>
+            </View>
+            
+            {/* Spécialités sélectionnées */}
+            {selectedSpecialties.length > 0 && (
+              <View style={dynamicStyles.selectedContainer}>
+                <Text style={dynamicStyles.selectedLabel}>
+                  {selectedSpecialties.length} spécialité{selectedSpecialties.length > 1 ? 's' : ''} sélectionnée{selectedSpecialties.length > 1 ? 's' : ''}
+                </Text>
+                <View style={dynamicStyles.selectedChips}>
+                  {selectedSpecialties.map((specialty) => (
+                    <View key={specialty.id} style={dynamicStyles.selectedChip}>
+                      <Text style={dynamicStyles.selectedChipText}>{specialty.label}</Text>
+                      {isEditing && (
+                        <TouchableOpacity
+                          style={dynamicStyles.removeChipButton}
+                          onPress={() => removeSpecialty(specialty.id)}
+                        >
+                          <X size={12} color={colors.buttonText} />
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* Grille des spécialités */}
+            {isEditing && (
+              <View style={dynamicStyles.modernSpecialtiesGrid}>
+                {availableSpecialties.map((specialty) => {
+                  const isSelected = selectedSpecialties.find(s => s.id === specialty.id);
+                  return (
+                    <TouchableOpacity
+                      key={specialty.id}
+                      style={[
+                        dynamicStyles.modernSpecialtyCard,
+                        isSelected && dynamicStyles.modernSpecialtyCardSelected
+                      ]}
+                      onPress={() => toggleSpecialty(specialty)}
+                    >
+                      <View style={[
+                        dynamicStyles.specialtyCardIcon,
+                        isSelected && dynamicStyles.specialtyCardIconSelected
+                      ]}>
+                        <Text style={dynamicStyles.specialtyEmoji}>
+                          {getSpecialtyEmoji(specialty.value)}
+                        </Text>
+                      </View>
+                      <Text style={[
+                        dynamicStyles.specialtyCardText,
+                        isSelected && dynamicStyles.specialtyCardTextSelected
+                      ]}>
+                        {specialty.label}
+                      </Text>
+                      {isSelected && (
+                        <View style={dynamicStyles.specialtySelectedBadge}>
+                          <CheckCircle size={14} color={colors.primary} />
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
           </View>
 
           {isEditing && (
@@ -504,35 +908,6 @@ export default function AccountInfoScreen() {
               </Text>
             </TouchableOpacity>
           )}
-        </View>
-
-        {/* Section Compétences */}
-        <View style={dynamicStyles.section}>
-          <Text style={dynamicStyles.sectionTitle}>{t.skills}</Text>
-          <View style={dynamicStyles.skillsContainer}>
-            {formData.skills.map((skill, index) => (
-              <View key={index} style={dynamicStyles.skillBadge}>
-                <Text style={dynamicStyles.skillText}>{skill}</Text>
-                {isEditing && (
-                  <TouchableOpacity
-                    style={dynamicStyles.removeSkillButton}
-                    onPress={() => removeSkill(skill)}
-                  >
-                    <X size={14} color={colors.primary} />
-                  </TouchableOpacity>
-                )}
-              </View>
-            ))}
-            {isEditing && (
-              <TouchableOpacity
-                style={dynamicStyles.addSkillButton}
-                onPress={() => setShowSkillsModal(true)}
-              >
-                <Plus size={16} color={colors.primary} />
-                <Text style={dynamicStyles.addSkillText}>{t.addSkill}</Text>
-              </TouchableOpacity>
-            )}
-          </View>
         </View>
 
         {/* Section Sécurité */}
@@ -632,8 +1007,6 @@ export default function AccountInfoScreen() {
           )}
         </View>
       </ScrollView>
-
-      <SkillsModal />
     </SafeAreaView>
   );
 }
