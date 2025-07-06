@@ -1,3 +1,5 @@
+apply from: new File(["node", "-e", "require('expo/scripts/autolinking')"].execute(null, rootDir).text.trim())
+
 pluginManagement {
   def reactNativeGradlePlugin = new File(
     providers.exec {

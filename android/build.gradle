@@ -1,15 +1,23 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
+  ext {
+    compileSdkVersion = 34
+    targetSdkVersion = 34
+    minSdkVersion = 21
+    kotlinVersion = '1.9.10' // adapte si besoin
+  }
+
   repositories {
     google()
     mavenCentral()
   }
+
   dependencies {
-        classpath 'com.google.gms:google-services:4.4.1'
-    classpath('com.android.tools.build:gradle')
+    classpath 'com.google.gms:google-services:4.4.1'
+    classpath('com.android.tools.build:gradle:8.3.0') // vérifie version compatible
     classpath('com.facebook.react:react-native-gradle-plugin')
-    classpath('org.jetbrains.kotlin:kotlin-gradle-plugin')
+    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
   }
 }
 
@@ -24,7 +32,6 @@ def reactNativeAndroidDir = new File(
 allprojects {
   repositories {
     maven {
-      // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
       url(reactNativeAndroidDir)
     }
 
