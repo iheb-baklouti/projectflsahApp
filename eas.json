@@ -7,21 +7,15 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "android": {
-        "workflow": "bare"
-      }
+      "workflow": "bare"
     },
     "preview": {
       "distribution": "internal",
-      "android": {
-        "workflow": "bare"
-      }
+      "workflow": "bare"
     },
     "production": {
       "autoIncrement": true,
-      "android": {
-        "workflow": "bare"
-      }
+      "workflow": "bare"
     }
   },
   "submit": {
