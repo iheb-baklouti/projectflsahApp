@@ -1,0 +1,79 @@
+import { ExpoConfig, ConfigContext } from '@expo/config';
+import withOverrideNotificationColor from './plugins/withOverrideNotificationColor';
+
+export default ({ config }: ConfigContext): ExpoConfig => ({
+  name: 'flashapp',
+  slug: 'technicienflashapp',
+  version: '1.0.0',
+  orientation: 'portrait',
+  icon: './assets/images/flashlogo.png',
+  scheme: 'myapp',
+  userInterfaceStyle: 'automatic',
+  newArchEnabled: true,
+  platforms: ['ios', 'android', 'web'],
+  android: {
+    permissions: [
+      'ACCESS_FINE_LOCATION',
+      'ACCESS_BACKGROUND_LOCATION',
+      'RECEIVE_BOOT_COMPLETED',
+      'VIBRATE',
+      'WAKE_LOCK'
+    ],
+    googleServicesFile: './google-services.json',
+    package: 'com.iheb_baklouti.technicienflashapp',
+    compileSdkVersion: 34,
+    targetSdkVersion: 34,
+    buildToolsVersion: '34.0.0',
+    versionCode: 1,
+    adaptiveIcon: {
+      foregroundImage: './assets/images/flashlogo.png',
+      backgroundColor: '#FFD700'
+    },
+    config: {
+      googleMaps: {
+        apiKey: 'YOUR_API_KEY'
+      }
+    }
+  },
+  ios: {
+    supportsTablet: true,
+    bundleIdentifier: 'com.iheb-baklouti.technicienflashapp',
+    buildNumber: '1',
+    infoPlist: {
+      NSLocationAlwaysUsageDescription: 'Cette app utilise votre position pour envoyer des notifications géolocalisées.'
+    },
+    googleServicesFile: './GoogleService-Info.plist'
+  },
+  web: {
+    bundler: 'metro',
+    output: 'single',
+    favicon: './assets/images/flashlogo.png'
+  },
+  experiments: {
+    typedRoutes: true
+  },
+  extra: {
+    router: {},
+    eas: {
+      projectId: 'e0334566-e1d4-42c3-97fd-11b2e38cf920'
+    }
+  },
+  owner: 'iheb_baklouti',
+  plugins: [
+    withOverrideNotificationColor,
+    'expo-router',
+    'expo-font',
+    'expo-web-browser',
+    '@react-native-firebase/app',
+    [
+      'expo-notifications',
+      {
+        icon: './assets/images/flashlogo_copy.png',
+        color: '#FFD700',
+        sounds: ['./assets/sounds/notification.mp3']
+      }
+    ],
+    'expo-audio',
+    'expo-secure-store'
+  ]
+});
