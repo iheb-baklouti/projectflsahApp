@@ -17,6 +17,7 @@
         "VIBRATE",
         "WAKE_LOCK"
       ],
+      "googleServicesFile": "./google-services.json",
       "package": "com.iheb_baklouti.technicienflashapp",
       "compileSdkVersion": 34,
       "targetSdkVersion": 34,
@@ -29,6 +30,18 @@
       "config": {
         "googleMaps": {
           "apiKey": "YOUR_API_KEY"
+        }
+      },
+      "manifest": {
+        "xmlns:tools": "http://schemas.android.com/tools",
+        "application": {
+          "meta-data": [
+            {
+              "android:name": "com.google.firebase.messaging.default_notification_color",
+              "android:resource": "@color/notification_icon_color",
+              "tools:replace": "android:resource"
+            }
+          ]
         }
       }
     },
@@ -50,6 +63,7 @@
       "expo-router",
       "expo-font",
       "expo-web-browser",
+      "@react-native-firebase/app",
       [
         "expo-notifications",
         {
