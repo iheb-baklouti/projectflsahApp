@@ -17,7 +17,6 @@
         "VIBRATE",
         "WAKE_LOCK"
       ],
-      "googleServicesFile": "./google-services.json",
       "package": "com.iheb_baklouti.technicienflashapp",
       "compileSdkVersion": 34,
       "targetSdkVersion": 34,
