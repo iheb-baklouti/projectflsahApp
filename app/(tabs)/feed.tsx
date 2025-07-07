@@ -17,10 +17,9 @@ import * as Notifications from 'expo-notifications';
 import { Audio } from 'expo-av';
 import { Intervention } from '@/types/intervention';
 import { NewInterventionPopup } from '@/components/interventions/NewInterventionPopup';
-import { FCMNotificationPopup } from '@/components/notifications/FCMNotificationPopup';
 import { Ionicons } from '@expo/vector-icons';
 import { NotificationContext } from '@/contexts/NotificationContext';
-import { useFCM } from '@/contexts/FCMContext';
+/* import { useFCM } from '@/contexts/FCMContext'; */
 import { RefreshCw } from 'lucide-react-native';
 
 // Configuration des notifications
@@ -50,13 +49,13 @@ export default function FeedScreen() {
   } = useContext(NotificationContext);
 
   // FCM Context
-  const {
+  /* const {
     isInitialized: fcmInitialized,
     fcmToken,
     currentNotification: fcmNotification,
     dismissCurrentNotification,
     testFCMNotification,
-  } = useFCM();
+  } = useFCM(); */
 
   const {
     interventions,
@@ -342,13 +341,13 @@ export default function FeedScreen() {
   };
 
   // Gérer l'acceptation d'une notification FCM
-  const handleAcceptFCMNotification = async () => {
+  /* const handleAcceptFCMNotification = async () => {
     if (fcmNotification?.data.interventionId) {
       // Si c'est une vraie intervention, l'accepter
       await handleTakeIntervention(fcmNotification.data.interventionId);
     }
     dismissCurrentNotification();
-  };
+  }; */
 
   const renderItem = ({ item }: { item: Intervention }) => (
     <InterventionCard
@@ -454,7 +453,7 @@ export default function FeedScreen() {
       color: '#fff', 
       fontWeight: 'bold' 
     },
-    fcmStatus: {
+    /* fcmStatus: {
       flexDirection: 'row',
       alignItems: 'center',
       marginBottom: 12,
@@ -462,11 +461,11 @@ export default function FeedScreen() {
       backgroundColor: fcmInitialized ? '#E8F5E8' : '#FFF3CD',
       borderRadius: 8,
     },
-    fcmStatusText: {
+    /* fcmStatusText: {
       fontSize: 14,
       color: fcmInitialized ? '#155724' : '#856404',
       marginLeft: 8,
-    },
+    }, */
     autoTestRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
@@ -551,16 +550,16 @@ export default function FeedScreen() {
       {/* Zone de test avec FCM */}
       <View style={dynamicStyles.testSection}>
         {/* Statut FCM */}
-        <View style={dynamicStyles.fcmStatus}>
+        {/* <View style={dynamicStyles.fcmStatus}>
           <Text style={dynamicStyles.fcmStatusText}>
             {fcmInitialized ? '🟢 FCM Connecté' : '🟡 FCM en cours...'}
           </Text>
-        </View>
+        </View> */}
 
         {/* Test FCM */}
-        <TouchableOpacity onPress={testFCMNotification} style={dynamicStyles.fcmTestBtn}>
+        {/* <TouchableOpacity onPress={testFCMNotification} style={dynamicStyles.fcmTestBtn}>
           <Text style={dynamicStyles.fcmTestBtnText}>🔥 Tester FCM Push</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         {/* Test local */}
         <TouchableOpacity onPress={() => triggerTestNotification(false)} style={dynamicStyles.testBtn}>
@@ -580,12 +579,12 @@ export default function FeedScreen() {
         {autoTestEnabled && (
           <Text style={dynamicStyles.testCounter}>{t.testsSent || 'Tests envoyés'}: {testCounter}</Text>
         )}
-
-        {fcmToken && (
+  
+        {/* {fcmToken && (
           <Text style={[dynamicStyles.testCounter, { fontSize: 10 }]}>
             Token: {fcmToken.substring(0, 20)}...
           </Text>
-        )}
+        )} */}
       </View>
 
       {/* Popup de nouvelle intervention (local) */}
@@ -598,13 +597,13 @@ export default function FeedScreen() {
       )}
 
       {/* Popup de notification FCM */}
-      {fcmNotification && (
+      {/* {fcmNotification && (
         <FCMNotificationPopup
           notification={fcmNotification}
           onAccept={handleAcceptFCMNotification}
           onDismiss={dismissCurrentNotification}
         />
-      )}
+      )} */}
 
       <InterventionFilter
         selectedFilter={selectedFilter}
