@@ -32,7 +32,7 @@
     "production": {
       "autoIncrement": true,
       "android": {
-        "buildType": "aab",
+        "buildType": "apk",
         "cache": {
           "disabled": false
         },
