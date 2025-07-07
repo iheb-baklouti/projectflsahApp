@@ -6,13 +6,40 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "gradleCommand": ":app:assembleDebug",
+        "cache": {
+          "disabled": false
+        },
+        "env": {
+          "EXPO_NO_CAPABILITY_SYNC": "1"
+        }
+      }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "cache": {
+          "disabled": false
+        },
+        "env": {
+          "EXPO_NO_CAPABILITY_SYNC": "1"
+        }
+      }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "android": {
+        "buildType": "aab",
+        "cache": {
+          "disabled": false
+        },
+        "env": {
+          "EXPO_NO_CAPABILITY_SYNC": "1"
+        }
+      }
     }
   },
   "submit": {

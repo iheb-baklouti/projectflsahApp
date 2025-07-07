@@ -1,7 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <color name="splashscreen_background">#FFFFFF</color>
-  <color name="iconBackground">#FFD700</color>
-  <color name="colorPrimary">#023c69</color>
-  <color name="colorPrimaryDark">#ffffff</color>
-  <color name="notification_icon_color">#FFD700</color>
+    <!-- Couleur principale de l'app -->
+    <color name="primary">#FFD700</color>
+    
+    <!-- Couleurs pour les notifications -->
+    <color name="notification_icon_color">#FFD700</color>
+    <color name="notification_background_color">#000000</color>
+    
+    <!-- Couleurs de base -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    
+    <!-- Couleurs pour le thème -->
+    <color name="colorPrimary">#FFD700</color>
+    <color name="colorPrimaryDark">#E6C200</color>
+    <color name="colorAccent">#FFD700</color>
+    
+    <!-- Couleurs de statut -->
+    <color name="status_bar_color">#000000</color>
+    <color name="navigation_bar_color">#000000</color>
 </resources>

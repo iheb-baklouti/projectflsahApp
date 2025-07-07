@@ -11,11 +11,13 @@
     "platforms": ["ios", "android", "web"],
     "android": {
       "permissions": [
-        "ACCESS_FINE_LOCATION",
+       "ACCESS_FINE_LOCATION",
         "ACCESS_BACKGROUND_LOCATION",
         "RECEIVE_BOOT_COMPLETED",
         "VIBRATE",
-        "WAKE_LOCK"
+        "WAKE_LOCK",
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
       ],
       "googleServicesFile": "./google-services.json",
       "package": "com.iheb_baklouti.technicienflashapp",
@@ -75,7 +77,8 @@
         }
       ],
       "expo-audio",
-      "expo-secure-store"
+      "expo-secure-store",
+      "./plugins/withAndroidManifestFix"
     ],
     "experiments": {
       "typedRoutes": true
