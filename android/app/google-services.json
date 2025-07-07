@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "242237343739",
+    "project_id": "flashapp-25fc0",
+    "storage_bucket": "flashapp-25fc0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:242237343739:android:75704418b8f65fb9426d5e",
+        "android_client_info": {
+          "package_name": "com.iheb_baklouti.technicienflashapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDqNJ-z6J7htYfwho-oREcSwChbq_L-rQE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
